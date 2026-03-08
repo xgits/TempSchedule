@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDC Schedule - Friday (2026-03-13)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; }
+
+.page-header {
+    background: linear-gradient(135deg, #1a237e, #283593);
+    color: white; padding: 20px 30px;
+}
+.page-header h1 { font-size: 24px; margin-bottom: 4px; }
+.page-header .subtitle { opacity: 0.8; font-size: 14px; }
+.stats-bar {
+    background: #fff; padding: 10px 30px; border-bottom: 1px solid #ddd;
+    display: flex; gap: 20px; font-size: 13px; color: #666;
+}
+.stats-bar span { font-weight: 600; color: #333; }
+
+.schedule-container { padding: 20px 30px; }
+
+.columns-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    gap: 4px; margin-bottom: 8px;
+}
+.col-header {
+    color: white; padding: 12px; border-radius: 6px; text-align: center;
+}
+.col-header .col-name { font-size: 20px; font-weight: 700; }
+.col-header .col-role { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+.col-header .col-stats { font-size: 11px; opacity: 0.7; margin-top: 4px; }
+
+.timeline-wrapper {
+    position: relative;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+}
+.time-axis { position: relative; height: 2025.0px; }
+.time-label {
+    position: absolute; right: 8px; font-size: 11px; color: #999;
+    transform: translateY(-50%); font-weight: 500;
+}
+.timeline-body {
+    position: relative;
+    height: 2025.0px;
+}
+.time-grid-line {
+    position: absolute; left: 60px; right: 0; height: 1px;
+    background: #e0e0e0; z-index: 0;
+}
+.session-block {
+    position: absolute; z-index: 1;
+    border-radius: 6px; padding: 8px 10px;
+    overflow: hidden; cursor: pointer;
+    transition: box-shadow 0.2s, z-index 0s;
+    font-size: 12px;
+}
+.session-block:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; }
+.session-block.detail-open {
+    overflow: visible; z-index: 20;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    height: auto !important; min-height: 120px;
+}
+.session-header { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+.session-title-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.score-badge {
+    display: inline-block; min-width: 22px; height: 22px;
+    line-height: 22px; text-align: center; border-radius: 4px;
+    color: white; font-weight: 700; font-size: 11px; flex-shrink: 0;
+}
+.session-title { font-weight: 600; font-size: 12px; line-height: 1.3; }
+.recording-badge {
+    display: inline-flex; align-items: center;
+    border-radius: 999px; padding: 2px 7px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+}
+.recording-badge.not-recorded {
+    background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a;
+}
+.recording-badge.shared-badge {
+    background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7;
+}
+.session-meta { font-size: 11px; color: #555; margin-bottom: 3px; }
+.session-subjective { font-size: 11px; color: #444; margin-bottom: 3px; font-weight: 600; }
+.session-reason { font-size: 11px; color: #666; font-style: italic; }
+.session-detail { display: none; margin-top: 6px; font-size: 11px; color: #555; }
+.detail-open .session-detail { display: block; }
+.detail-label { font-size: 10px; color: #888; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; }
+.detail-tracks { color: #1565c0; margin-bottom: 2px; }
+.detail-speakers { color: #666; margin-bottom: 4px; }
+.detail-desc { line-height: 1.4; }
+.adjustment-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.adjustment-chip {
+    display: inline-flex; align-items: center;
+    background: #f3f4f6; color: #555; border-radius: 999px;
+    padding: 2px 6px; font-size: 10px;
+}
+
+.gap-block {
+    position: absolute; z-index: 0;
+    border-radius: 6px; border: 2px dashed;
+    padding: 8px 10px; overflow: hidden;
+}
+.gap-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #555; }
+.gap-meta { font-size: 11px; color: #666; margin: 4px 0 6px; }
+.gap-options { display: grid; gap: 4px; }
+.gap-option {
+    display: flex; gap: 6px; align-items: flex-start;
+    background: rgba(255,255,255,0.6); border-radius: 4px; padding: 4px 6px;
+}
+.gap-option-body { min-width: 0; }
+.gap-option-title-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.gap-option-title { font-size: 11px; font-weight: 600; line-height: 1.3; }
+.gap-option-meta { font-size: 10px; color: #777; margin-top: 2px; }
+
+.alts-section { margin-top: 6px; border-top: 1px dashed #ccc; padding-top: 4px; }
+.alts-label { font-size: 10px; color: #999; font-weight: 600; margin-bottom: 3px; }
+.alt-chip {
+    display: flex; align-items: center; gap: 4px;
+    padding: 3px 6px; margin: 2px 0; border-radius: 4px;
+    background: rgba(255,255,255,0.6); cursor: pointer;
+    font-size: 11px; flex-wrap: wrap;
+}
+.alt-chip:hover { background: rgba(255,255,255,0.9); }
+.alt-score {
+    display: inline-block; width: 18px; height: 18px;
+    line-height: 18px; text-align: center; border-radius: 3px;
+    color: white; font-weight: 700; font-size: 10px; flex-shrink: 0;
+}
+.alt-title { font-weight: 500; }
+.alt-detail { display: none; width: 100%; font-size: 10px; color: #666; padding: 4px 0 2px 22px; }
+.alt-chip.expanded .alt-detail { display: block; }
+.alt-reason { font-style: italic; }
+.alt-desc { margin-top: 2px; line-height: 1.3; }
+
+.unattended-section {
+    margin-top: 30px; background: white; border-radius: 8px;
+    padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.unattended-section h2 { font-size: 16px; margin-bottom: 12px; color: #c62828; }
+.unattended-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0; flex-wrap: wrap; font-size: 12px;
+}
+.unattended-person { font-weight: 700; font-size: 11px; }
+.unattended-title { font-weight: 600; }
+.unattended-meta { color: #999; font-size: 11px; }
+.unattended-reason { width: 100%; font-size: 11px; color: #666; font-style: italic; padding-left: 30px; }
+
+.audit-section {
+    margin-top: 30px; background: white; border-radius: 8px;
+    padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.audit-section h2 { font-size: 16px; margin-bottom: 6px; color: #37474f; }
+.audit-note { font-size: 12px; color: #777; margin-bottom: 12px; }
+.audit-grid { display: grid; gap: 8px; }
+.audit-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.audit-title-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.audit-time { font-size: 11px; color: #888; font-weight: 700; min-width: 84px; }
+.audit-title { font-size: 13px; font-weight: 600; }
+.audit-meta { font-size: 11px; color: #666; margin-top: 3px; }
+.audit-status { font-size: 11px; color: #1565c0; margin-top: 3px; }
+
+.legend {
+    display: flex; gap: 16px; margin: 16px 0; font-size: 12px; align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+
+/* ── Mobile View ── */
+.mobile-view { display: none; }
+.view-toggle { display: none; position: fixed; bottom: 16px; right: 16px; z-index: 100; }
+.view-toggle button {
+    padding: 10px 16px; border: none; border-radius: 20px;
+    background: #1976d2; color: white; font-size: 13px; font-weight: 600;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3); cursor: pointer;
+}
+.person-filter { display: none; gap: 8px; margin-bottom: 16px; padding: 0 16px; flex-wrap: wrap; }
+.person-filter button {
+    padding: 8px 16px; border: 2px solid #ddd; border-radius: 20px;
+    background: white; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.person-filter button.active { border-color: currentColor; }
+.person-filter .f-LD { color: #1565c0; }
+.person-filter .f-GW { color: #2e7d32; }
+.person-filter .f-LYF { color: #e65100; }
+.person-filter .f-all { color: #333; }
+
+.m-card {
+    margin: 8px 16px; border-radius: 10px; padding: 14px; font-size: 13px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.m-card .m-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.m-card .m-person {
+    padding: 2px 8px; border-radius: 4px; color: white; font-size: 11px; font-weight: 700;
+}
+.m-card .m-title { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.m-card .m-meta { font-size: 12px; color: #666; margin-bottom: 4px; }
+.m-card .m-reason { font-size: 12px; color: #555; font-style: italic; }
+.m-card .m-alts { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ddd; }
+.m-card .m-alt {
+    display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px; cursor: pointer;
+}
+.m-card .m-alt-detail { display: none; font-size: 11px; color: #666; padding: 4px 0 4px 28px; }
+.m-card .m-alt.expanded .m-alt-detail { display: block; }
+.m-gap-card .m-alts { margin-top: 0; padding-top: 0; border-top: none; }
+
+@media (max-width: 768px) {
+    .desktop-view { display: none; }
+    .mobile-view { display: block; }
+    .view-toggle { display: block; }
+    .person-filter { display: flex; }
+    .page-header { padding: 16px; }
+    .page-header h1 { font-size: 18px; }
+    .stats-bar { padding: 8px 16px; font-size: 12px; flex-wrap: wrap; gap: 8px; }
+    .schedule-container { padding: 8px 0; }
+    .legend { display: none; }
+    .unattended-section { margin: 16px; }
+}
+@media print {
+    .session-block { break-inside: avoid; }
+    .session-block.detail-open { overflow: hidden; }
+    .view-toggle { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>GDC 2026 Schedule - Friday</h1>
+    <div class="subtitle">2026-03-13 | Generated 2026-03-08 00:15</div>
+</div>
+
+<div class="stats-bar">
+    Total sessions: <span>101</span> |
+    Assigned: <span>10</span> |
+    Total score: <span>91</span>
+</div>
+
+<div class="schedule-container">
+    <!-- Desktop View -->
+    <div class="desktop-view">
+        <div class="legend">
+            <span>Score: </span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#2e7d32"></span> 8-10</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#f9a825"></span> 6-7</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#ef6c00"></span> 4-5</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#c62828"></span> 1-3</span>
+            <span style="margin-left:16px">Click session to expand details. Click alternative to see info.</span>
+        </div>
+
+        <div class="columns-header">
+            <div></div>
+            <div class="col-header" style="background:#1565c0">
+            <div class="col-name">LD</div>
+            <div class="col-role">Technical Art Lead (技术美术组长)</div>
+            <div class="col-stats">5 sessions</div>
+        </div><div class="col-header" style="background:#2e7d32">
+            <div class="col-name">GW</div>
+            <div class="col-role">Mobile Engine Lead (Mobile引擎组长)</div>
+            <div class="col-stats">2 sessions</div>
+        </div><div class="col-header" style="background:#e65100">
+            <div class="col-name">LYF</div>
+            <div class="col-role">Senior PC Graphics Programmer (PC资深图形程序)</div>
+            <div class="col-stats">3 sessions</div>
+        </div>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div class="time-axis">
+                <div class="time-label" style="top:0.0px">09:30</div><div class="time-grid-line" style="top:0.0px"></div><div class="time-label" style="top:75.0px">10:00</div><div class="time-grid-line" style="top:75.0px"></div><div class="time-label" style="top:150.0px">10:30</div><div class="time-grid-line" style="top:150.0px"></div><div class="time-label" style="top:225.0px">11:00</div><div class="time-grid-line" style="top:225.0px"></div><div class="time-label" style="top:300.0px">11:30</div><div class="time-grid-line" style="top:300.0px"></div><div class="time-label" style="top:375.0px">12:00</div><div class="time-grid-line" style="top:375.0px"></div><div class="time-label" style="top:450.0px">12:30</div><div class="time-grid-line" style="top:450.0px"></div><div class="time-label" style="top:525.0px">13:00</div><div class="time-grid-line" style="top:525.0px"></div><div class="time-label" style="top:600.0px">13:30</div><div class="time-grid-line" style="top:600.0px"></div><div class="time-label" style="top:675.0px">14:00</div><div class="time-grid-line" style="top:675.0px"></div><div class="time-label" style="top:750.0px">14:30</div><div class="time-grid-line" style="top:750.0px"></div><div class="time-label" style="top:825.0px">15:00</div><div class="time-grid-line" style="top:825.0px"></div><div class="time-label" style="top:900.0px">15:30</div><div class="time-grid-line" style="top:900.0px"></div><div class="time-label" style="top:975.0px">16:00</div><div class="time-grid-line" style="top:975.0px"></div><div class="time-label" style="top:1050.0px">16:30</div><div class="time-grid-line" style="top:1050.0px"></div><div class="time-label" style="top:1125.0px">17:00</div><div class="time-grid-line" style="top:1125.0px"></div><div class="time-label" style="top:1200.0px">17:30</div><div class="time-grid-line" style="top:1200.0px"></div><div class="time-label" style="top:1275.0px">18:00</div><div class="time-grid-line" style="top:1275.0px"></div><div class="time-label" style="top:1350.0px">18:30</div><div class="time-grid-line" style="top:1350.0px"></div><div class="time-label" style="top:1425.0px">19:00</div><div class="time-grid-line" style="top:1425.0px"></div><div class="time-label" style="top:1500.0px">19:30</div><div class="time-grid-line" style="top:1500.0px"></div><div class="time-label" style="top:1575.0px">20:00</div><div class="time-grid-line" style="top:1575.0px"></div><div class="time-label" style="top:1650.0px">20:30</div><div class="time-grid-line" style="top:1650.0px"></div><div class="time-label" style="top:1725.0px">21:00</div><div class="time-grid-line" style="top:1725.0px"></div><div class="time-label" style="top:1800.0px">21:30</div><div class="time-grid-line" style="top:1800.0px"></div><div class="time-label" style="top:1875.0px">22:00</div><div class="time-grid-line" style="top:1875.0px"></div><div class="time-label" style="top:1950.0px">22:30</div><div class="time-grid-line" style="top:1950.0px"></div><div class="time-label" style="top:2025.0px">23:00</div><div class="time-grid-line" style="top:2025.0px"></div>
+            </div>
+            <div class="timeline-body">
+                <div class="gap-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 225.0px;
+                height: 100.0px;
+                border-color: #1976d2;
+                background: #bbdefb;
+            ">
+                <div class="gap-label">Open slot</div>
+                <div class="gap-meta">11:00-11:40 | Optional picks</div>
+                <div class="gap-options"><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">&#39;Green Hawk Platoon&#39;: Building a Big FPS at Toy-Soldier Scale (Presented by Dell Technologies)</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">11:10-11:30 | 综合 3 / LLM 3</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div></div>
+            </div><div class="gap-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 400.0px;
+                height: 200.0px;
+                border-color: #1976d2;
+                background: #bbdefb;
+            ">
+                <div class="gap-label">Open slot</div>
+                <div class="gap-meta">12:10-13:30 | Optional picks</div>
+                <div class="gap-options"><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">1</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">&#39;Dead by Daylight&#39;: Reflecting on 10 Years of Terror</span>
+                            
+                        </div>
+                        <div class="gap-option-meta">12:15-13:15 | 综合 1 / LLM 2</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">非核心主题 -2</span></div>
+                    </div>
+                </div></div>
+            </div><div class="gap-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 950.0px;
+                height: 1075.0px;
+                border-color: #1976d2;
+                background: #bbdefb;
+            ">
+                <div class="gap-label">Open slot</div>
+                <div class="gap-meta">15:50-23:00 | Optional picks</div>
+                <div class="gap-options"><div class="gap-option">
+                    <span class="alt-score" style="background:#ef6c00">4</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Canceled: Animating Vi for &#39;2XKO&#39;</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">22:59-23:00 | 综合 4 / LLM 4</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#ef6c00">4</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Canceled: Connection and Creativity at Scale: Inside King&#39;s 1,000-Person Game Jam</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">22:59-23:00 | 综合 4 / LLM 4</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Canceled: Automating &#39;Marathon&#39;: How Bungie Went from 10 Automated Tests to Over 100 New, Reliable Tests to Deliver a High-Quality, Stable, Live-Service Game</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">22:59-23:00 | 综合 3 / LLM 3</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Canceled: Camera Deobscura: Building a Flexible Camera System</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">22:59-23:00 | 综合 3 / LLM 3</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Canceled: Cinematic on a Shoestring: The Technical Design Behind &#39;Mouthwashing&#39;</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">22:59-23:00 | 综合 3 / LLM 3</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 0.0px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">Tech Art Panel Discussion</span>
+                        
+                        
+                    </div>
+                </div>
+                <div class="session-meta">09:30-10:30 | 2014, West Hall</div>
+                <div class="session-subjective">主观评价: 综合 9 | LLM 8</div>
+                <div class="session-reason">主观理由: 技术美术工作流优化</div>
+                <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Ben Cloward(Independent), Nicholas Burkhard(Meta), Matt Lake(Independent), Sen Lei Deng(EA Criterion), Camille Kay(Epic Games)</div>
+                    <div class="detail-desc">As the boundaries of fidelity and scale continue to expand, the role of the technical artist has evolved from &#39;bridge builder&#39; to &#39;architect of automa</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">5</span>
+                        <span class="alt-title">&#39;Genshin Impact&#39; Miliastra Wonderland: Co-Creating a Virtual World with Users</span>
+                        
+                        
+                        <div class="alt-detail">
+                            <div>09:30-10:30 | 2010, West Hall | 综合 5 / LLM 5</div>
+                            <div class="alt-reason">主观理由: UGC技术，部分相关</div>
+                            
+                            <div class="alt-desc">This talk will first outline the rationale behind the development of Miliastra Wonderland, Genshin Impact&#39;s in-game user-generated content (UGC) gameplay module, as well as the project team&#39;s vision f</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">Digital Folklore: Crafting Playable Memory Through Photogrammetry and Animation in Games Education</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                        <div class="alt-detail">
+                            <div>09:30-11:30 | 216, South Hall | 综合 4 / LLM 4</div>
+                            <div class="alt-reason">主观理由: 教育导向，技术内容有限</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                            <div class="alt-desc">This hands-on Digital Folklore workshop explores how Photogrammetry and Animation workflows can be taught effectively in Games Development education. Drawing from their PhD research and student acclai</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 150.0px;
+                height: 75.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">7</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">The Future of Facial Rigging: RigX and the Next Era of Digital Humans (Presented by 2DNAC)</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                    </div>
+                </div>
+                <div class="session-meta">10:30-11:00 | Festival Stage, South Hall</div>
+                <div class="session-subjective">主观评价: 综合 7 | LLM 7</div>
+                <div class="session-reason">主观理由: 角色创建技术相关</div>
+                <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Marko Šašić(2DNAC), Miroslav Radmanović(2DNAC)</div>
+                    <div class="detail-desc">Marko Š. presents RigX, a revolutionary pipeline that transforms how digital characters are created for high-end games and cinematic productions. Atte</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#2e7d32">9</span>
+                        <span class="alt-title">The Dynamic Weather Systems of &#39;Borderlands 4&#39;: How They Can Apply to Games Without Dynamic Weather</span>
+                        
+                        <span class="recording-badge shared-badge">Shared</span>
+                        <div class="alt-detail">
+                            <div>10:50-11:20 | 2005, West Hall | 综合 9 / LLM 8</div>
+                            <div class="alt-reason">主观理由: UE5动态天气系统</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                            <div class="alt-desc">A visual and technical showcase describing how Borderlands 4 (BL4) leverages built-in UE5 features, along with custom extensions, to create a flexible, extendable and performant weather system for its</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">Digital Folklore: Crafting Playable Memory Through Photogrammetry and Animation in Games Education</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                        <div class="alt-detail">
+                            <div>09:30-11:30 | 216, South Hall | 综合 4 / LLM 4</div>
+                            <div class="alt-reason">主观理由: 教育导向，技术内容有限</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                            <div class="alt-desc">This hands-on Digital Folklore workshop explores how Photogrammetry and Animation workflows can be taught effectively in Games Development education. Drawing from their PhD research and student acclai</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">Curating the World of &#39;Baby Steps&#39;</span>
+                        
+                        
+                        <div class="alt-detail">
+                            <div>10:50-11:20 | 2006, West Hall | 综合 4 / LLM 4</div>
+                            <div class="alt-reason">主观理由: 开放世界设计，技术内容少</div>
+                            
+                            <div class="alt-desc">&#39;Baby Steps&#39; is a 3D hiking game with a vast open world created by a very small team. While the world is completely fixed, exploring and curating undesigned random levels was an integral part of the c</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 325.0px;
+                height: 75.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">The Future of Game Knowledge: Search Less. Ship More.</span>
+                        
+                        
+                    </div>
+                </div>
+                <div class="session-meta">11:40-12:10 | 2001, West Hall</div>
+                <div class="session-subjective">主观评价: 综合 9 | LLM 8</div>
+                <div class="session-reason">主观理由: AI生产流程优化</div>
+                <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Product Management, Production</div>
+                    <div class="detail-speakers">Roxane Zaim(Ubisoft), Thomas Prelle(Ubisoft)</div>
+                    <div class="detail-desc">At Ubisoft, knowledge is scattered across Confluence, Jira, GitLab, video platforms, and dozens of team silos. This fragmentation makes it harder to r</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#2e7d32">9</span>
+                        <span class="alt-title">Demystifying the Clouds of &#39;Borderlands 4&#39;: Adapting Volumetric Cloud Technologies to a UE5 Open-World Game</span>
+                        
+                        <span class="recording-badge shared-badge">Shared</span>
+                        <div class="alt-detail">
+                            <div>11:40-12:10 | 2005, West Hall | 综合 9 / LLM 8</div>
+                            <div class="alt-reason">主观理由: UE5开放世界云技术</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                            <div class="alt-desc">A quick recap of real-time volumetric cloud rendering techniques will be followed by a behind the scenes look into BL4&#39;s open world clouds system. Gearbox will discuss the issues involved in shipping </div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Zenith: Diffusion Model-Driven Map Generation</span>
+                        
+                        
+                        <div class="alt-detail">
+                            <div>11:40-12:10 | 2014, West Hall | 综合 7 / LLM 7</div>
+                            <div class="alt-reason">主观理由: AI地图生成技术</div>
+                            
+                            <div class="alt-desc">This session introduces Zenith, a hybrid pipeline that automates the creation of multi-layered top-down maps from 3D environments. By combining procedural geometry extraction with a multi-encoder Cont</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">Career Forum: Machine Learning</span>
+                        
+                        
+                        <div class="alt-detail">
+                            <div>11:40-12:40 | 3002, West Hall | 综合 4 / LLM 3</div>
+                            <div class="alt-reason">主观理由: 职业发展无技术内容</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                            <div class="alt-desc">You have a passion in Video Games and Machine Learning? You just graduated, or are looking to change your job, or considering a new Career path? This session is for you, come and ask all your question</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 600.0px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">6</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">Tools Roundtable Day 3: Build</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                    </div>
+                </div>
+                <div class="session-meta">13:30-14:30 | 306, South Hall</div>
+                <div class="session-subjective">主观评价: 综合 6 | LLM 6</div>
+                <div class="session-reason">主观理由: 工具和资产管道优化</div>
+                <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Geoff Evans(Nvidia)</div>
+                    <div class="detail-desc">The Tools Technology Roundtables focus on discussion of best practices, novel techniques, and technical trade-offs for building game development tools</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">5</span>
+                        <span class="alt-title">Technical Artists Roundtable (20th Year)!!! Day 3</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                        <div class="alt-detail">
+                            <div>13:30-14:30 | 312, South Hall | 综合 5 / LLM 5</div>
+                            <div class="alt-reason">主观理由: 技术美术角色讨论</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                            <div class="alt-desc">The role of a technical artists has grown from a clean-up artist and data wrangler to someone who is in charge of complex content creation pipelines and asset tracking systems. Increasingly, the lines</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">Analytics and Data Science Roundtable (Presented by the IGDA)</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                        <div class="alt-detail">
+                            <div>13:30-14:30 | 304, South Hall | 综合 4 / LLM 4</div>
+                            <div class="alt-reason">主观理由: 数据分析与决策</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                            <div class="alt-desc">Data science and analytics have transformed how games are designed and supported, but meaningful insight takes more than dashboards and KPIs. This roundtable explores how we connect data to decisions:</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 800.0px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">Game AI Roundtable Day 3</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                    </div>
+                </div>
+                <div class="session-meta">14:50-15:50 | 314, South Hall</div>
+                <div class="session-subjective">主观评价: 综合 9 | LLM 9</div>
+                <div class="session-reason">主观理由: AI对游戏开发的影响</div>
+                <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Rez Graham(Independent)</div>
+                    <div class="detail-desc">The Game AI Roundtable is organized into three sessions, with each session having its own focus.  Session 3 focuses on machine learning and generati</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Tool Design Roundtable Day 3</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                        <div class="alt-detail">
+                            <div>14:50-15:50 | 306, South Hall | 综合 7 / LLM 7</div>
+                            <div class="alt-reason">主观理由: 工具设计讨论</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                            <div class="alt-desc">For day 3: This Tool Design roundtable is about the UX of in-house and external toolsets. Come and meet, discuss, and find out what everyone has been doing with Tool Design in the last year. Example</div>
+                        </div>
+                    </div></div>
+            </div><div class="gap-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 150.0px;
+                height: 70px;
+                border-color: #388e3c;
+                background: #c8e6c9;
+            ">
+                <div class="gap-label">Open slot</div>
+                <div class="gap-meta">10:30-10:50 | Optional picks</div>
+                <div class="gap-options"><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">1</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Your Next 100 Developers Don&#39;t Have to Be Expensive: Building a Tax-Optimized Game Studio in Kyrgyzstan (Presented by Kyrgyzstan Pavilion)</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">10:30-10:50 | 综合 1 / LLM 1</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div></div>
+            </div><div class="gap-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 350.0px;
+                height: 1675.0px;
+                border-color: #388e3c;
+                background: #c8e6c9;
+            ">
+                <div class="gap-label">Open slot</div>
+                <div class="gap-meta">11:50-23:00 | Optional picks</div>
+                <div class="gap-options"><div class="gap-option">
+                    <span class="alt-score" style="background:#ef6c00">4</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Multiplayer Game Dynamics: Behind the Scenes of the New York Times&#39; New Game: &#39;CrossPlay&#39;</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">11:50-12:50 | 综合 4 / LLM 7</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">非核心安全议题 -3</span><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#ef6c00">4</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Analytics and Data Science Roundtable (Presented by the IGDA)</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">13:30-14:30 | 综合 4 / LLM 4</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#ef6c00">4</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Tool Design Roundtable Day 3</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">14:50-15:50 | 综合 4 / LLM 4</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">The New Cinema</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">11:50-12:50 | 综合 3 / LLM 3</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Technical Artists Roundtable (20th Year)!!! Day 3</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">13:30-14:30 | 综合 3 / LLM 3</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div></div>
+            </div><div class="session-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 0.0px;
+                height: 150.0px;
+                background: #e8f5e9;
+                border-left: 4px solid #388e3c;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">6</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">Essential Debugging Skills for Every Developer</span>
+                        
+                        
+                    </div>
+                </div>
+                <div class="session-meta">09:30-10:30 | 2001, West Hall</div>
+                <div class="session-subjective">主观评价: 综合 6 | LLM 6</div>
+                <div class="session-reason">主观理由: 调试技巧，通用但有用</div>
+                
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Career</div>
+                    <div class="detail-speakers">Rez Graham(Independent)</div>
+                    <div class="detail-desc">Debugging is more than setting breakpoints, it&#39;s a mindset and a skill every programmer must master. This fast-paced session goes beyond &#39;step into&#39; a</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Tech Art Panel Discussion</span>
+                        
+                        <span class="recording-badge shared-badge">Shared</span>
+                        <div class="alt-detail">
+                            <div>09:30-10:30 | 2014, West Hall | 综合 6 / LLM 5</div>
+                            <div class="alt-reason">主观理由: 技术美术优化相关</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                            <div class="alt-desc">As the boundaries of fidelity and scale continue to expand, the role of the technical artist has evolved from &#39;bridge builder&#39; to &#39;architect of automation.&#39; Today&#39;s pipelines are increasingly defined </div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">&#39;Genshin Impact&#39; Miliastra Wonderland: Co-Creating a Virtual World with Users</span>
+                        
+                        
+                        <div class="alt-detail">
+                            <div>09:30-10:30 | 2010, West Hall | 综合 4 / LLM 4</div>
+                            <div class="alt-reason">主观理由: UGC模块，技术内容有限</div>
+                            
+                            <div class="alt-desc">This talk will first outline the rationale behind the development of Miliastra Wonderland, Genshin Impact&#39;s in-game user-generated content (UGC) gameplay module, as well as the project team&#39;s vision f</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 200.0px;
+                height: 150.0px;
+                background: #e8f5e9;
+                border-left: 4px solid #388e3c;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">6</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">Automated Testing Roundtable Day 3</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                    </div>
+                </div>
+                <div class="session-meta">10:50-11:50 | 306, South Hall</div>
+                <div class="session-subjective">主观评价: 综合 6 | LLM 6</div>
+                <div class="session-reason">主观理由: 自动化测试相关</div>
+                <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Andrew Fray(Automated AF)</div>
+                    <div class="detail-desc">Day 3: Implementation Automated testing provides a team with stability across development, allowing early feedback, fast iteration and empowering QA.</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Demystifying the Clouds of &#39;Borderlands 4&#39;: Adapting Volumetric Cloud Technologies to a UE5 Open-World Game</span>
+                        
+                        <span class="recording-badge shared-badge">Shared</span>
+                        <div class="alt-detail">
+                            <div>11:40-12:10 | 2005, West Hall | 综合 6 / LLM 5</div>
+                            <div class="alt-reason">主观理由: UE5开放世界云技术</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                            <div class="alt-desc">A quick recap of real-time volumetric cloud rendering techniques will be followed by a behind the scenes look into BL4&#39;s open world clouds system. Gearbox will discuss the issues involved in shipping </div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">The Dynamic Weather Systems of &#39;Borderlands 4&#39;: How They Can Apply to Games Without Dynamic Weather</span>
+                        
+                        <span class="recording-badge shared-badge">Shared</span>
+                        <div class="alt-detail">
+                            <div>10:50-11:20 | 2005, West Hall | 综合 4 / LLM 3</div>
+                            <div class="alt-reason">主观理由: 天气系统无关</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                            <div class="alt-desc">A visual and technical showcase describing how Borderlands 4 (BL4) leverages built-in UE5 features, along with custom extensions, to create a flexible, extendable and performant weather system for its</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">Zenith: Diffusion Model-Driven Map Generation</span>
+                        
+                        
+                        <div class="alt-detail">
+                            <div>11:40-12:10 | 2014, West Hall | 综合 4 / LLM 4</div>
+                            <div class="alt-reason">主观理由: AI地图生成，技术相关</div>
+                            
+                            <div class="alt-desc">This session introduces Zenith, a hybrid pipeline that automates the creation of multi-layered top-down maps from 3D environments. By combining procedural geometry extraction with a multi-encoder Cont</div>
+                        </div>
+                    </div></div>
+            </div><div class="gap-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 150.0px;
+                height: 70px;
+                border-color: #f57c00;
+                background: #ffe0b2;
+            ">
+                <div class="gap-label">Open slot</div>
+                <div class="gap-meta">10:30-10:50 | Optional picks</div>
+                <div class="gap-options"><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">1</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Your Next 100 Developers Don&#39;t Have to Be Expensive: Building a Tax-Optimized Game Studio in Kyrgyzstan (Presented by Kyrgyzstan Pavilion)</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">10:30-10:50 | 综合 1 / LLM 1</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div></div>
+            </div><div class="gap-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 400.0px;
+                height: 1625.0px;
+                border-color: #f57c00;
+                background: #ffe0b2;
+            ">
+                <div class="gap-label">Open slot</div>
+                <div class="gap-meta">12:10-23:00 | Optional picks</div>
+                <div class="gap-options"><div class="gap-option">
+                    <span class="alt-score" style="background:#ef6c00">4</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Analytics and Data Science Roundtable (Presented by the IGDA)</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">13:30-14:30 | 综合 4 / LLM 4</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#ef6c00">4</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Canceled: Camera Deobscura: Building a Flexible Camera System</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">22:59-23:00 | 综合 4 / LLM 4</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Experimental Games Showcase</span>
+                            
+                        </div>
+                        <div class="gap-option-meta">12:30-14:30 | 综合 3 / LLM 3</div>
+                        
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Technical Artists Roundtable (20th Year)!!! Day 3</span>
+                            <span class="recording-badge not-recorded">No Recording</span>
+                        </div>
+                        <div class="gap-option-meta">13:30-14:30 | 综合 3 / LLM 3</div>
+                        <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                    </div>
+                </div><div class="gap-option">
+                    <span class="alt-score" style="background:#c62828">3</span>
+                    <div class="gap-option-body">
+                        <div class="gap-option-title-row">
+                            <span class="gap-option-title">Grappling with Success: Smooth Movement on an Indie Budget</span>
+                            
+                        </div>
+                        <div class="gap-option-meta">13:40-14:40 | 综合 3 / LLM 3</div>
+                        
+                    </div>
+                </div></div>
+            </div><div class="session-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 0.0px;
+                height: 150.0px;
+                background: #fff3e0;
+                border-left: 4px solid #f57c00;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">6</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">VFX Roundtable Day 3</span>
+                        <span class="recording-badge not-recorded">No Recording</span>
+                        
+                    </div>
+                </div>
+                <div class="session-meta">09:30-10:30 | 306, South Hall</div>
+                <div class="session-subjective">主观评价: 综合 6 | LLM 6</div>
+                <div class="session-reason">主观理由: 技术特效讨论</div>
+                <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Visual Development</div>
+                    <div class="detail-speakers">Jason Keyser(VFX Apprentice), Ellie Koorlander(Creative Assembly)</div>
+                    <div class="detail-desc">On Day 1, Ellie and Jason will facilitate the roundtable covering general topics and revisit ground broken in the VFX Summit earlier in the week. Be s</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Tech Art Panel Discussion</span>
+                        
+                        <span class="recording-badge shared-badge">Shared</span>
+                        <div class="alt-detail">
+                            <div>09:30-10:30 | 2014, West Hall | 综合 7 / LLM 6</div>
+                            <div class="alt-reason">主观理由: 技术美术优化</div>
+                            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                            <div class="alt-desc">As the boundaries of fidelity and scale continue to expand, the role of the technical artist has evolved from &#39;bridge builder&#39; to &#39;architect of automation.&#39; Today&#39;s pipelines are increasingly defined </div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 200.0px;
+                height: 75.0px;
+                background: #fff3e0;
+                border-left: 4px solid #f57c00;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">The Dynamic Weather Systems of &#39;Borderlands 4&#39;: How They Can Apply to Games Without Dynamic Weather</span>
+                        
+                        
+                    </div>
+                </div>
+                <div class="session-meta">10:50-11:20 | 2005, West Hall</div>
+                <div class="session-subjective">主观评价: 综合 9 | LLM 8</div>
+                <div class="session-reason">主观理由: UE5动态天气系统</div>
+                <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Visual Development, Design</div>
+                    <div class="detail-speakers">Brian McNett(Gearbox Software)</div>
+                    <div class="detail-desc">A visual and technical showcase describing how Borderlands 4 (BL4) leverages built-in UE5 features, along with custom extensions, to create a flexible</div>
+                </div>
+                
+            </div><div class="session-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 325.0px;
+                height: 75.0px;
+                background: #fff3e0;
+                border-left: 4px solid #f57c00;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <div class="session-title-wrap">
+                        <span class="session-title">Demystifying the Clouds of &#39;Borderlands 4&#39;: Adapting Volumetric Cloud Technologies to a UE5 Open-World Game</span>
+                        
+                        
+                    </div>
+                </div>
+                <div class="session-meta">11:40-12:10 | 2005, West Hall</div>
+                <div class="session-subjective">主观评价: 综合 9 | LLM 8</div>
+                <div class="session-reason">主观理由: UE5开放世界云技术</div>
+                <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+                <div class="session-detail">
+                    <div class="detail-label">客观信息</div>
+                    <div class="detail-tracks">Visual Development, Design</div>
+                    <div class="detail-speakers">Spencer Luebbert(Disbelief)</div>
+                    <div class="detail-desc">A quick recap of real-time volumetric cloud rendering techniques will be followed by a behind the scenes look into BL4&#39;s open world clouds system. Gea</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Zenith: Diffusion Model-Driven Map Generation</span>
+                        
+                        
+                        <div class="alt-detail">
+                            <div>11:40-12:10 | 2014, West Hall | 综合 6 / LLM 6</div>
+                            <div class="alt-reason">主观理由: 扩散模型生成地图</div>
+                            
+                            <div class="alt-desc">This session introduces Zenith, a hybrid pipeline that automates the creation of multi-layered top-down maps from 3D environments. By combining procedural geometry extraction with a multi-encoder Cont</div>
+                        </div>
+                    </div></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile View -->
+    <div class="mobile-view">
+        <div class="person-filter">
+            <button class="f-all active" onclick="filterPerson('all', this)">All</button>
+            <button class="f-LD" onclick="filterPerson('LD', this)">LD</button>
+            <button class="f-GW" onclick="filterPerson('GW', this)">GW</button>
+            <button class="f-LYF" onclick="filterPerson('LYF', this)">LYF</button>
+        </div>
+        <div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Tech Art Panel Discussion</span>
+                
+                
+            </div>
+            <div class="m-meta">09:30-10:30 | 2014, West Hall</div>
+            <div class="m-meta" style="color:#888">Ben Cloward(Independent), Nicholas Burkhard(Meta), Matt Lake(Independent), Sen Lei Deng(EA Criterion), Camille Kay(Epic Games)</div>
+            <div class="m-meta">主观评价: 综合 9 / LLM 8</div>
+            <div class="m-reason">主观理由: 技术美术工作流优化</div>
+            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">5</span>
+                    <span>&#39;Genshin Impact&#39; Miliastra Wonderland: Co-Creating a Virtual World with Users</span>
+                    
+                    
+                    <div class="m-alt-detail">09:30-10:30 | 2010, West Hall<br>主观理由: UGC技术，部分相关</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Digital Folklore: Crafting Playable Memory Through Photogrammetry and Animation in Games Education</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    
+                    <div class="m-alt-detail">09:30-11:30 | 216, South Hall<br>主观理由: 教育导向，技术内容有限</div>
+                </div></div>
+        </div><div class="m-card" data-person="GW" style="background:#e8f5e9;border-left:4px solid #388e3c">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">6</span>
+                <span class="m-person" style="background:#388e3c">GW</span>
+                <span class="m-title">Essential Debugging Skills for Every Developer</span>
+                
+                
+            </div>
+            <div class="m-meta">09:30-10:30 | 2001, West Hall</div>
+            <div class="m-meta" style="color:#888">Rez Graham(Independent)</div>
+            <div class="m-meta">主观评价: 综合 6 / LLM 6</div>
+            <div class="m-reason">主观理由: 调试技巧，通用但有用</div>
+            
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Tech Art Panel Discussion</span>
+                    
+                    <span class="recording-badge shared-badge">Shared</span>
+                    <div class="m-alt-detail">09:30-10:30 | 2014, West Hall<br>主观理由: 技术美术优化相关</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>&#39;Genshin Impact&#39; Miliastra Wonderland: Co-Creating a Virtual World with Users</span>
+                    
+                    
+                    <div class="m-alt-detail">09:30-10:30 | 2010, West Hall<br>主观理由: UGC模块，技术内容有限</div>
+                </div></div>
+        </div><div class="m-card" data-person="LYF" style="background:#fff3e0;border-left:4px solid #f57c00">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">6</span>
+                <span class="m-person" style="background:#f57c00">LYF</span>
+                <span class="m-title">VFX Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="m-meta">09:30-10:30 | 306, South Hall</div>
+            <div class="m-meta" style="color:#888">Jason Keyser(VFX Apprentice), Ellie Koorlander(Creative Assembly)</div>
+            <div class="m-meta">主观评价: 综合 6 / LLM 6</div>
+            <div class="m-reason">主观理由: 技术特效讨论</div>
+            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Tech Art Panel Discussion</span>
+                    
+                    <span class="recording-badge shared-badge">Shared</span>
+                    <div class="m-alt-detail">09:30-10:30 | 2014, West Hall<br>主观理由: 技术美术优化</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">7</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">The Future of Facial Rigging: RigX and the Next Era of Digital Humans (Presented by 2DNAC)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="m-meta">10:30-11:00 | Festival Stage, South Hall</div>
+            <div class="m-meta" style="color:#888">Marko Šašić(2DNAC), Miroslav Radmanović(2DNAC)</div>
+            <div class="m-meta">主观评价: 综合 7 / LLM 7</div>
+            <div class="m-reason">主观理由: 角色创建技术相关</div>
+            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#2e7d32;min-width:20px;height:20px;line-height:20px;font-size:10px">9</span>
+                    <span>The Dynamic Weather Systems of &#39;Borderlands 4&#39;: How They Can Apply to Games Without Dynamic Weather</span>
+                    
+                    <span class="recording-badge shared-badge">Shared</span>
+                    <div class="m-alt-detail">10:50-11:20 | 2005, West Hall<br>主观理由: UE5动态天气系统</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Digital Folklore: Crafting Playable Memory Through Photogrammetry and Animation in Games Education</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    
+                    <div class="m-alt-detail">09:30-11:30 | 216, South Hall<br>主观理由: 教育导向，技术内容有限</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Curating the World of &#39;Baby Steps&#39;</span>
+                    
+                    
+                    <div class="m-alt-detail">10:50-11:20 | 2006, West Hall<br>主观理由: 开放世界设计，技术内容少</div>
+                </div></div>
+        </div><div class="m-card m-gap-card" data-person="GW" style="background:#e8f5e9;border-left:4px dashed #388e3c">
+                <div class="m-header">
+                    <span class="m-person" style="background:#388e3c">GW</span>
+                    <span class="m-title">Open slot</span>
+                </div>
+                <div class="m-meta">10:30-10:50 | Optional picks</div>
+                <div class="m-alts"><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">1</span>
+                    <span>Your Next 100 Developers Don&#39;t Have to Be Expensive: Building a Tax-Optimized Game Studio in Kyrgyzstan (Presented by Kyrgyzstan Pavilion)</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">10:30-10:50 | 综合 1 / LLM 1</div>
+                </div></div>
+            </div><div class="m-card m-gap-card" data-person="LYF" style="background:#fff3e0;border-left:4px dashed #f57c00">
+                <div class="m-header">
+                    <span class="m-person" style="background:#f57c00">LYF</span>
+                    <span class="m-title">Open slot</span>
+                </div>
+                <div class="m-meta">10:30-10:50 | Optional picks</div>
+                <div class="m-alts"><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">1</span>
+                    <span>Your Next 100 Developers Don&#39;t Have to Be Expensive: Building a Tax-Optimized Game Studio in Kyrgyzstan (Presented by Kyrgyzstan Pavilion)</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">10:30-10:50 | 综合 1 / LLM 1</div>
+                </div></div>
+            </div><div class="m-card" data-person="GW" style="background:#e8f5e9;border-left:4px solid #388e3c">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">6</span>
+                <span class="m-person" style="background:#388e3c">GW</span>
+                <span class="m-title">Automated Testing Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="m-meta">10:50-11:50 | 306, South Hall</div>
+            <div class="m-meta" style="color:#888">Andrew Fray(Automated AF)</div>
+            <div class="m-meta">主观评价: 综合 6 / LLM 6</div>
+            <div class="m-reason">主观理由: 自动化测试相关</div>
+            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Demystifying the Clouds of &#39;Borderlands 4&#39;: Adapting Volumetric Cloud Technologies to a UE5 Open-World Game</span>
+                    
+                    <span class="recording-badge shared-badge">Shared</span>
+                    <div class="m-alt-detail">11:40-12:10 | 2005, West Hall<br>主观理由: UE5开放世界云技术</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>The Dynamic Weather Systems of &#39;Borderlands 4&#39;: How They Can Apply to Games Without Dynamic Weather</span>
+                    
+                    <span class="recording-badge shared-badge">Shared</span>
+                    <div class="m-alt-detail">10:50-11:20 | 2005, West Hall<br>主观理由: 天气系统无关</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Zenith: Diffusion Model-Driven Map Generation</span>
+                    
+                    
+                    <div class="m-alt-detail">11:40-12:10 | 2014, West Hall<br>主观理由: AI地图生成，技术相关</div>
+                </div></div>
+        </div><div class="m-card" data-person="LYF" style="background:#fff3e0;border-left:4px solid #f57c00">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#f57c00">LYF</span>
+                <span class="m-title">The Dynamic Weather Systems of &#39;Borderlands 4&#39;: How They Can Apply to Games Without Dynamic Weather</span>
+                
+                
+            </div>
+            <div class="m-meta">10:50-11:20 | 2005, West Hall</div>
+            <div class="m-meta" style="color:#888">Brian McNett(Gearbox Software)</div>
+            <div class="m-meta">主观评价: 综合 9 / LLM 8</div>
+            <div class="m-reason">主观理由: UE5动态天气系统</div>
+            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+            
+        </div><div class="m-card m-gap-card" data-person="LD" style="background:#e3f2fd;border-left:4px dashed #1976d2">
+                <div class="m-header">
+                    <span class="m-person" style="background:#1976d2">LD</span>
+                    <span class="m-title">Open slot</span>
+                </div>
+                <div class="m-meta">11:00-11:40 | Optional picks</div>
+                <div class="m-alts"><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>&#39;Green Hawk Platoon&#39;: Building a Big FPS at Toy-Soldier Scale (Presented by Dell Technologies)</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">11:10-11:30 | 综合 3 / LLM 3</div>
+                </div></div>
+            </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">The Future of Game Knowledge: Search Less. Ship More.</span>
+                
+                
+            </div>
+            <div class="m-meta">11:40-12:10 | 2001, West Hall</div>
+            <div class="m-meta" style="color:#888">Roxane Zaim(Ubisoft), Thomas Prelle(Ubisoft)</div>
+            <div class="m-meta">主观评价: 综合 9 / LLM 8</div>
+            <div class="m-reason">主观理由: AI生产流程优化</div>
+            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#2e7d32;min-width:20px;height:20px;line-height:20px;font-size:10px">9</span>
+                    <span>Demystifying the Clouds of &#39;Borderlands 4&#39;: Adapting Volumetric Cloud Technologies to a UE5 Open-World Game</span>
+                    
+                    <span class="recording-badge shared-badge">Shared</span>
+                    <div class="m-alt-detail">11:40-12:10 | 2005, West Hall<br>主观理由: UE5开放世界云技术</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Zenith: Diffusion Model-Driven Map Generation</span>
+                    
+                    
+                    <div class="m-alt-detail">11:40-12:10 | 2014, West Hall<br>主观理由: AI地图生成技术</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Career Forum: Machine Learning</span>
+                    
+                    
+                    <div class="m-alt-detail">11:40-12:40 | 3002, West Hall<br>主观理由: 职业发展无技术内容</div>
+                </div></div>
+        </div><div class="m-card" data-person="LYF" style="background:#fff3e0;border-left:4px solid #f57c00">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#f57c00">LYF</span>
+                <span class="m-title">Demystifying the Clouds of &#39;Borderlands 4&#39;: Adapting Volumetric Cloud Technologies to a UE5 Open-World Game</span>
+                
+                
+            </div>
+            <div class="m-meta">11:40-12:10 | 2005, West Hall</div>
+            <div class="m-meta" style="color:#888">Spencer Luebbert(Disbelief)</div>
+            <div class="m-meta">主观评价: 综合 9 / LLM 8</div>
+            <div class="m-reason">主观理由: UE5开放世界云技术</div>
+            <div class="adjustment-row"><span class="adjustment-chip">高信号案例/团队 +1</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Zenith: Diffusion Model-Driven Map Generation</span>
+                    
+                    
+                    <div class="m-alt-detail">11:40-12:10 | 2014, West Hall<br>主观理由: 扩散模型生成地图</div>
+                </div></div>
+        </div><div class="m-card m-gap-card" data-person="GW" style="background:#e8f5e9;border-left:4px dashed #388e3c">
+                <div class="m-header">
+                    <span class="m-person" style="background:#388e3c">GW</span>
+                    <span class="m-title">Open slot</span>
+                </div>
+                <div class="m-meta">11:50-23:00 | Optional picks</div>
+                <div class="m-alts"><div class="m-alt">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Multiplayer Game Dynamics: Behind the Scenes of the New York Times&#39; New Game: &#39;CrossPlay&#39;</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">11:50-12:50 | 综合 4 / LLM 7</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Analytics and Data Science Roundtable (Presented by the IGDA)</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">13:30-14:30 | 综合 4 / LLM 4</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Tool Design Roundtable Day 3</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">14:50-15:50 | 综合 4 / LLM 4</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>The New Cinema</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">11:50-12:50 | 综合 3 / LLM 3</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>Technical Artists Roundtable (20th Year)!!! Day 3</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">13:30-14:30 | 综合 3 / LLM 3</div>
+                </div></div>
+            </div><div class="m-card m-gap-card" data-person="LD" style="background:#e3f2fd;border-left:4px dashed #1976d2">
+                <div class="m-header">
+                    <span class="m-person" style="background:#1976d2">LD</span>
+                    <span class="m-title">Open slot</span>
+                </div>
+                <div class="m-meta">12:10-13:30 | Optional picks</div>
+                <div class="m-alts"><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">1</span>
+                    <span>&#39;Dead by Daylight&#39;: Reflecting on 10 Years of Terror</span>
+                    
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">12:15-13:15 | 综合 1 / LLM 2</div>
+                </div></div>
+            </div><div class="m-card m-gap-card" data-person="LYF" style="background:#fff3e0;border-left:4px dashed #f57c00">
+                <div class="m-header">
+                    <span class="m-person" style="background:#f57c00">LYF</span>
+                    <span class="m-title">Open slot</span>
+                </div>
+                <div class="m-meta">12:10-23:00 | Optional picks</div>
+                <div class="m-alts"><div class="m-alt">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Analytics and Data Science Roundtable (Presented by the IGDA)</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">13:30-14:30 | 综合 4 / LLM 4</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Canceled: Camera Deobscura: Building a Flexible Camera System</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">22:59-23:00 | 综合 4 / LLM 4</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>Experimental Games Showcase</span>
+                    
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">12:30-14:30 | 综合 3 / LLM 3</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>Technical Artists Roundtable (20th Year)!!! Day 3</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">13:30-14:30 | 综合 3 / LLM 3</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>Grappling with Success: Smooth Movement on an Indie Budget</span>
+                    
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">13:40-14:40 | 综合 3 / LLM 3</div>
+                </div></div>
+            </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">6</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Tools Roundtable Day 3: Build</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="m-meta">13:30-14:30 | 306, South Hall</div>
+            <div class="m-meta" style="color:#888">Geoff Evans(Nvidia)</div>
+            <div class="m-meta">主观评价: 综合 6 / LLM 6</div>
+            <div class="m-reason">主观理由: 工具和资产管道优化</div>
+            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">5</span>
+                    <span>Technical Artists Roundtable (20th Year)!!! Day 3</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    
+                    <div class="m-alt-detail">13:30-14:30 | 312, South Hall<br>主观理由: 技术美术角色讨论</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Analytics and Data Science Roundtable (Presented by the IGDA)</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    
+                    <div class="m-alt-detail">13:30-14:30 | 304, South Hall<br>主观理由: 数据分析与决策</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Game AI Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="m-meta">14:50-15:50 | 314, South Hall</div>
+            <div class="m-meta" style="color:#888">Rez Graham(Independent)</div>
+            <div class="m-meta">主观评价: 综合 9 / LLM 9</div>
+            <div class="m-reason">主观理由: AI对游戏开发的影响</div>
+            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Tool Design Roundtable Day 3</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    
+                    <div class="m-alt-detail">14:50-15:50 | 306, South Hall<br>主观理由: 工具设计讨论</div>
+                </div></div>
+        </div><div class="m-card m-gap-card" data-person="LD" style="background:#e3f2fd;border-left:4px dashed #1976d2">
+                <div class="m-header">
+                    <span class="m-person" style="background:#1976d2">LD</span>
+                    <span class="m-title">Open slot</span>
+                </div>
+                <div class="m-meta">15:50-23:00 | Optional picks</div>
+                <div class="m-alts"><div class="m-alt">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Canceled: Animating Vi for &#39;2XKO&#39;</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">22:59-23:00 | 综合 4 / LLM 4</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Canceled: Connection and Creativity at Scale: Inside King&#39;s 1,000-Person Game Jam</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">22:59-23:00 | 综合 4 / LLM 4</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>Canceled: Automating &#39;Marathon&#39;: How Bungie Went from 10 Automated Tests to Over 100 New, Reliable Tests to Deliver a High-Quality, Stable, Live-Service Game</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">22:59-23:00 | 综合 3 / LLM 3</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>Canceled: Camera Deobscura: Building a Flexible Camera System</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">22:59-23:00 | 综合 3 / LLM 3</div>
+                </div><div class="m-alt">
+                    <span class="score-badge" style="background:#c62828;min-width:20px;height:20px;line-height:20px;font-size:10px">3</span>
+                    <span>Canceled: Cinematic on a Shoestring: The Technical Design Behind &#39;Mouthwashing&#39;</span>
+                    <span class="recording-badge not-recorded">No Recording</span>
+                    <div class="m-alt-detail" style="display:block;padding-left:28px">22:59-23:00 | 综合 3 / LLM 3</div>
+                </div></div>
+            </div>
+    </div>
+
+    <div class="unattended-section">
+        <h2>Unattended High-Score Sessions</h2>
+        <div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">7</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Zenith: Diffusion Model-Driven Map Generation</span>
+            
+            <span class="unattended-meta">11:40-12:10 | 2014, West Hall | 综合 7 / LLM 7</span>
+            <div class="unattended-reason">主观理由: AI地图生成技术</div>
+            
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">7</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Tool Design Roundtable Day 3</span>
+            <span class="recording-badge not-recorded">No Recording</span>
+            <span class="unattended-meta">14:50-15:50 | 306, South Hall | 综合 7 / LLM 7</span>
+            <div class="unattended-reason">主观理由: 工具设计讨论</div>
+            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#ef6c00">5</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">&#39;Genshin Impact&#39; Miliastra Wonderland: Co-Creating a Virtual World with Users</span>
+            
+            <span class="unattended-meta">09:30-10:30 | 2010, West Hall | 综合 5 / LLM 5</span>
+            <div class="unattended-reason">主观理由: UGC技术，部分相关</div>
+            
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#ef6c00">5</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Technical Artists Roundtable (20th Year)!!! Day 3</span>
+            <span class="recording-badge not-recorded">No Recording</span>
+            <span class="unattended-meta">13:30-14:30 | 312, South Hall | 综合 5 / LLM 5</span>
+            <div class="unattended-reason">主观理由: 技术美术角色讨论</div>
+            <div class="adjustment-row"><span class="adjustment-chip">无录像，需优先现场判断</span></div>
+        </div>
+    </div>
+
+    <div class="audit-section">
+        <h2>All Sessions Audit</h2>
+        <div class="audit-note">Raw session fields remain in original language. LLM reasons/evaluations are the subjective layer.</div>
+        <div class="audit-grid">
+            <div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Casting Authentic Voices Across Cultures: Navigating Multilingual Casting for AAA Games</span>
+                
+                
+            </div>
+            <div class="audit-meta">2003, West Hall | Audio, Team Leadership</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-11:30</span>
+                <span class="audit-title">Digital Folklore: Crafting Playable Memory Through Photogrammetry and Animation in Games Education</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">216, South Hall | Educators, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Dinner Table Democracy: Designing Disagreement</span>
+                
+                
+            </div>
+            <div class="audit-meta">3002, West Hall | Culture &amp; Sustainability, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Diversity in Game Audio Roundtable Day 2</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">308, South Hall | Audio</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Essential Debugging Skills for Every Developer</span>
+                
+                
+            </div>
+            <div class="audit-meta">2001, West Hall | Career</div>
+            <div class="audit-status">Assigned: GW</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Game Economy Lessons with Supercell &amp; Metacore</span>
+                
+                
+            </div>
+            <div class="audit-meta">2005, West Hall | Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-14:10</span>
+                <span class="audit-title">GDC Encounters: Speed Networking Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Level 1, West Hall | Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">&#39;Genshin Impact&#39; Miliastra Wonderland: Co-Creating a Virtual World with Users</span>
+                
+                
+            </div>
+            <div class="audit-meta">2010, West Hall | Design, Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-16:00</span>
+                <span class="audit-title">Hands-On Game Design Workshop</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">3016, West Hall | Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-11:30</span>
+                <span class="audit-title">IGDA Mentor Cafe Session 2</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">207, South Hall | Special Event, Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Incubation Roundtable: Connecting with Stakeholders (Presented by IGDA)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">304, South Hall | Culture &amp; Sustainability, Independent Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Killer Art Portfolio or Portfolio Killer Part 1: Advice from Industry Artists</span>
+                
+                
+            </div>
+            <div class="audit-meta">2006, West Hall | Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">&#39;Pacific Drive&#39; Under the Hood: Survival Fundamentals, Systems Design, and Speeding Past Tropes</span>
+                
+                
+            </div>
+            <div class="audit-meta">2018, West Hall | Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">&#39;Pokémon GO&#39; Gigantamax Battles: Designing a Scalable Battle System</span>
+                
+                
+            </div>
+            <div class="audit-meta">2016, West Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-12:30</span>
+                <span class="audit-title">Student Day Waiting Area</span>
+                
+                
+            </div>
+            <div class="audit-meta">211, South Hall | No tracks found for this session</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-12:30</span>
+                <span class="audit-title">Student Day Workshop</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">203, South Hall | Special Event, Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">Tech Art Panel Discussion</span>
+                
+                
+            </div>
+            <div class="audit-meta">2014, West Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Assigned: LD</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:00</span>
+                <span class="audit-title">The Next Growth Market: Health, Learning, and Transformation</span>
+                
+                
+            </div>
+            <div class="audit-meta">3018, West Hall | Culture &amp; Sustainability, Business Strategy</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">09:30-10:30</span>
+                <span class="audit-title">VFX Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">306, South Hall | Visual Development</div>
+            <div class="audit-status">Assigned: LYF</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:00-14:00</span>
+                <span class="audit-title">Base Camp: Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Booth 1765, South Hall | Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:00-16:00</span>
+                <span class="audit-title">Tabletop Free Play &amp; Playtesting Lounge</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Tabletop Free Play &amp;amp; Playtesting Lounge, West Hall Level 3 | Special Event</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:00-11:30</span>
+                <span class="audit-title">The Secret Lives of Games Live Podcast Recording</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Podcast Studio, GDC Commons | Special Event</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:30-11:00</span>
+                <span class="audit-title">The Future of Facial Rigging: RigX and the Next Era of Digital Humans (Presented by 2DNAC)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Festival Stage, South Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Assigned: LD</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:30-11:30</span>
+                <span class="audit-title">Top 10 Ways to Get Your Game Ready For Success</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Indie &amp; Education Stage, South Hall | Independent Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:30-10:50</span>
+                <span class="audit-title">Your Next 100 Developers Don&#39;t Have to Be Expensive: Building a Tax-Optimized Game Studio in Kyrgyzstan (Presented by Kyrgyzstan Pavilion)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">International Stage, South Hall | Business Strategy</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:50</span>
+                <span class="audit-title">Accessibility at Scale Roundtable: Doing More with Less (Presented by the IGDA)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">304, South Hall | Culture &amp; Sustainability, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:50</span>
+                <span class="audit-title">AI Audio Roundtable</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">312, South Hall | Audio</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:50</span>
+                <span class="audit-title">Automated Testing Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">306, South Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Assigned: GW</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">Curating the World of &#39;Baby Steps&#39;</span>
+                
+                
+            </div>
+            <div class="audit-meta">2006, West Hall | Design, Independent Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:50</span>
+                <span class="audit-title">Debugging Audio Systems: Tools, Tactics, and Real-World Stories</span>
+                
+                
+            </div>
+            <div class="audit-meta">2003, West Hall | Audio, Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">From Project Operator to &#39;The Operator&#39;: Postmortem of Supporting a Solo Dev to Find Launch Success</span>
+                
+                
+            </div>
+            <div class="audit-meta">2016, West Hall | Independent Development, Discovery &amp; Marketing</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">Live Sound Bath and Meditation (Presented by thatgamecompany)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">212, South Hall | Special Event</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">Nutrition, Not Calories: Findings from Oxford&#39;s 3-Million-Hour Study on Healthy Play</span>
+                
+                
+            </div>
+            <div class="audit-meta">3018, West Hall | Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">Playtesting Process for Ultra Small Teams</span>
+                
+                
+            </div>
+            <div class="audit-meta">2014, West Hall | Independent Development, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:50</span>
+                <span class="audit-title">Production Roundtable Day 3: Career</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">308, South Hall | Team Leadership, Production</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">Rating the Future: Evolving Content Standards Across UGC Games</span>
+                
+                
+            </div>
+            <div class="audit-meta">2001, West Hall | Product Management, Discovery &amp; Marketing</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">The Dynamic Weather Systems of &#39;Borderlands 4&#39;: How They Can Apply to Games Without Dynamic Weather</span>
+                
+                
+            </div>
+            <div class="audit-meta">2005, West Hall | Visual Development, Design</div>
+            <div class="audit-status">Assigned: LYF</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">The Toxicity Tax: Why the Future of Trust and Safety is Leadership Led</span>
+                
+                
+            </div>
+            <div class="audit-meta">2010, West Hall | Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">10:50-11:20</span>
+                <span class="audit-title">What I&#39;ve Seen in Over 600 VR Launches: What to Do, What to Avoid, and Where to Make Impact Early</span>
+                
+                
+            </div>
+            <div class="audit-meta">2018, West Hall | Business Strategy, Discovery &amp; Marketing</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:00-14:00</span>
+                <span class="audit-title">Lunch and Entertainment in the Gardens</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">GDC Gardens, Yerba Buena Gardens | No tracks found for this session</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:10-11:30</span>
+                <span class="audit-title">&#39;Green Hawk Platoon&#39;: Building a Big FPS at Toy-Soldier Scale (Presented by Dell Technologies)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Future Tech Stage, South Hall | Independent Development, Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:30-12:30</span>
+                <span class="audit-title">Game Developer Podcast Live Recording - Game Developer Staff Roundtable</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Podcast Studio, GDC Commons | Special Event</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:30-12:00</span>
+                <span class="audit-title">GDC Side Quest Podcast Live: Jennifer Svedberg-Yen</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">GDC Commons Stage | Special Event</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:30-12:00</span>
+                <span class="audit-title">The Future of Artists: Fireside Chat with Michael Koperwas</span>
+                
+                
+            </div>
+            <div class="audit-meta">Festival Stage, South Hall | Visual Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:10</span>
+                <span class="audit-title">Beyond the Player: Pathways of Women Founders Shaping Indie Games in the Arab World</span>
+                
+                
+            </div>
+            <div class="audit-meta">2018, West Hall | Independent Development, Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:40</span>
+                <span class="audit-title">Career Forum: Machine Learning</span>
+                
+                
+            </div>
+            <div class="audit-meta">3002, West Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:10</span>
+                <span class="audit-title">Catching Culture Currents: Riding Resonant Trends in &#39;Roblox&#39; and Beyond</span>
+                
+                
+            </div>
+            <div class="audit-meta">2010, West Hall | Design, Independent Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:10</span>
+                <span class="audit-title">Demystifying the Clouds of &#39;Borderlands 4&#39;: Adapting Volumetric Cloud Technologies to a UE5 Open-World Game</span>
+                
+                
+            </div>
+            <div class="audit-meta">2005, West Hall | Visual Development, Design</div>
+            <div class="audit-status">Assigned: LYF</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:40</span>
+                <span class="audit-title">Designing the Ideal Level Design Portfolio: What Hiring Teams Actually Look For</span>
+                
+                
+            </div>
+            <div class="audit-meta">3018, West Hall | Design, Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-14:40</span>
+                <span class="audit-title">Killer Art Portfolio or Portfolio Killer Part 2: Portfolio Reviews</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">215, South Hall | Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:10</span>
+                <span class="audit-title">The Future of Game Knowledge: Search Less. Ship More.</span>
+                
+                
+            </div>
+            <div class="audit-meta">2001, West Hall | Product Management, Production</div>
+            <div class="audit-status">Assigned: LD</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:10</span>
+                <span class="audit-title">The Player-Centric Engine: CRM&#39;s Role in Enabling Cross-Functional Growth for &#39;Candy Crush Saga&#39;</span>
+                
+                
+            </div>
+            <div class="audit-meta">2016, West Hall | Discovery &amp; Marketing, Product Management</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:40-12:10</span>
+                <span class="audit-title">Zenith: Diffusion Model-Driven Map Generation</span>
+                
+                
+            </div>
+            <div class="audit-meta">2014, West Hall | Visual Development, Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:50-12:10</span>
+                <span class="audit-title">Making Economics Playable: Designing &#39;Hidden Champion&#39; to Teach Business Thinking (Presented by German Pavilion)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">International Stage, South Hall | Educators, Business Strategy</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:50-12:50</span>
+                <span class="audit-title">Multiplayer Game Dynamics: Behind the Scenes of the New York Times&#39; New Game: &#39;CrossPlay&#39;</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Monetization &amp; Player Engagement Stage, South Hall | Game &amp; Production Technology, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">11:50-12:50</span>
+                <span class="audit-title">The New Cinema</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">Future Tech Stage, South Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">12:00-12:30</span>
+                <span class="audit-title">GDC Side Quest Podcast Live: Gabe Cuzzillo</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">GDC Commons Stage | Special Event, Independent Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">12:15-13:15</span>
+                <span class="audit-title">&#39;Dead by Daylight&#39;: Reflecting on 10 Years of Terror</span>
+                
+                
+            </div>
+            <div class="audit-meta">Festival Stage, South Hall | Discovery &amp; Marketing</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">12:30-14:30</span>
+                <span class="audit-title">Experimental Games Showcase</span>
+                
+                
+            </div>
+            <div class="audit-meta">2006, West Hall | Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:10-14:10</span>
+                <span class="audit-title">G.A.N.G. Town Hall</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">2018, West Hall | Special Event, Audio</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:10-14:10</span>
+                <span class="audit-title">How to Advocate for Accessibility on Your Team: A Toolkit for Developers and Marketing Pros</span>
+                
+                
+            </div>
+            <div class="audit-meta">2001, West Hall | Culture &amp; Sustainability, Discovery &amp; Marketing</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:10-14:10</span>
+                <span class="audit-title">Lessons Learned in Running a Game the Hard Way: How Blizzard Revitalized &#39;Overwatch&#39;</span>
+                
+                
+            </div>
+            <div class="audit-meta">2005, West Hall | Design, Business Strategy</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:30-14:30</span>
+                <span class="audit-title">Analytics and Data Science Roundtable (Presented by the IGDA)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">304, South Hall | Culture &amp; Sustainability, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:30-14:30</span>
+                <span class="audit-title">Game Audio Programmer Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">314, South Hall | Game &amp; Production Technology, Audio</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:30-14:30</span>
+                <span class="audit-title">It Takes a Village: Live at GDC Day 3</span>
+                
+                
+            </div>
+            <div class="audit-meta">Festival Stage, South Hall | Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:30-14:30</span>
+                <span class="audit-title">Technical Artists Roundtable (20th Year)!!! Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">312, South Hall | Visual Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:30-14:30</span>
+                <span class="audit-title">Tools Roundtable Day 3: Build</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">306, South Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Assigned: LD</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:40-14:40</span>
+                <span class="audit-title">&#39;Borderlands 4&#39; Launch Load Testing</span>
+                
+                
+            </div>
+            <div class="audit-meta">2016, West Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:40-14:40</span>
+                <span class="audit-title">Game Education Case Study Microtalks</span>
+                
+                
+            </div>
+            <div class="audit-meta">3018, West Hall | Educators, Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:40-14:40</span>
+                <span class="audit-title">Getting Your Foot in the Door Part 2: Getting Hired in Japan</span>
+                
+                
+            </div>
+            <div class="audit-meta">3002, West Hall | Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:40-14:40</span>
+                <span class="audit-title">Grappling with Success: Smooth Movement on an Indie Budget</span>
+                
+                
+            </div>
+            <div class="audit-meta">2010, West Hall | Independent Development, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:40-14:40</span>
+                <span class="audit-title">How &#39;Ghost of Yōtei&#39; Was Pre-Mixed with the Help of a Sound Sensei</span>
+                
+                
+            </div>
+            <div class="audit-meta">2003, West Hall | Audio, Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:40-14:40</span>
+                <span class="audit-title">Monetization Systems That Work for Players and Studios</span>
+                
+                
+            </div>
+            <div class="audit-meta">2014, West Hall | Business Strategy, Product Management</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">13:45-14:45</span>
+                <span class="audit-title">Supporting the Games Ecosystem</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">203, South Hall | Special Event</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">14:50-16:00</span>
+                <span class="audit-title">Experimental Games Showcase Demos</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">3002, West Hall | Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">14:50-15:50</span>
+                <span class="audit-title">Game AI Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">314, South Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Assigned: LD</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">14:50-15:50</span>
+                <span class="audit-title">Leveling Up Kids&#39; Privacy: Navigating Global Requirements (Presented by the IGDA)</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">304, South Hall | Culture &amp; Sustainability, Business Strategy</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">14:50-15:50</span>
+                <span class="audit-title">Tool Design Roundtable Day 3</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">306, South Hall | Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">14:50-15:50</span>
+                <span class="audit-title">Working with Stakeholders Roundtable: Peer Mentorship</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">308, South Hall | Culture &amp; Sustainability, Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">15:00-16:00</span>
+                <span class="audit-title">Designing ARGs to Foster Meaningful Community Connection</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">2018, West Hall | Special Event</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">15:00-16:00</span>
+                <span class="audit-title">IGDA Annual General Meeting</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">2010, West Hall | Special Event, Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">15:00-16:00</span>
+                <span class="audit-title">Level Design Portfolio Review</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">3011, West Hall | Design, Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">15:00-15:30</span>
+                <span class="audit-title">Player Hearing Safety: Accessibility&#39;s Close Cousin</span>
+                
+                
+            </div>
+            <div class="audit-meta">3018, West Hall | Culture &amp; Sustainability, Audio</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">15:00-16:00</span>
+                <span class="audit-title">Press Startup: How to Raise Serious Funds, Ship Killer Products and Build Lasting Value like a Tech Business</span>
+                
+                
+            </div>
+            <div class="audit-meta">2016, West Hall | Business Strategy</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">15:00-16:00</span>
+                <span class="audit-title">Writing Games for a Distracted, Polarized, Media-Illiterate World</span>
+                
+                
+            </div>
+            <div class="audit-meta">2001, West Hall | Narrative &amp; Performance</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Animating Vi for &#39;2XKO&#39;</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Visual Development, Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Automating &#39;Marathon&#39;: How Bungie Went from 10 Automated Tests to Over 100 New, Reliable Tests to Deliver a High-Quality, Stable, Live-Service Game</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Behind the Scenes: The Making of a Gameplay Trailer</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Discovery &amp; Marketing, Visual Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Camera Deobscura: Building a Flexible Camera System</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">3004, West Hall | Game &amp; Production Technology, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Cinematic on a Shoestring: The Technical Design Behind &#39;Mouthwashing&#39;</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Game &amp; Production Technology, Narrative &amp; Performance</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Connection and Creativity at Scale: Inside King&#39;s 1,000-Person Game Jam</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Team Leadership, Culture &amp; Sustainability</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Designing Content Creator Campaigns That Don&#39;t Burn Out at Launch</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Discovery &amp; Marketing</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Don&#39;t Ship the Wrong Game!</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Independent Development, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Every Indie Funding Opportunity</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Independent Development, Business Strategy</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: High-Performance Gameplay Networking for &#39;Marathon&#39;</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Game &amp; Production Technology</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Preserving Play: How the Wordle, Connections &amp; Strand Archives Fuel Ritual and Connection in NYT Games</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Product Management</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Restarting from Zero: A Message to Creators Considering Independence</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Business Strategy, Independent Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Riding the Current: Leveraging Today&#39;s Discoverability Trends</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Discovery &amp; Marketing, Independent Development</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Sones: A Better Measurement for Game Audio</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Audio, Design</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Sound Design x AI: Honing Your Craft While Navigating Emerging Technologies</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Audio</div>
+            <div class="audit-status">Unscheduled</div>
+        </div><div class="audit-item">
+            <div class="audit-title-row">
+                <span class="audit-time">22:59-23:00</span>
+                <span class="audit-title">Canceled: Working Abroad in Gaming</span>
+                <span class="recording-badge not-recorded">No Recording</span>
+                
+            </div>
+            <div class="audit-meta">TBD | Career</div>
+            <div class="audit-status">Unscheduled</div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="view-toggle">
+    <button onclick="toggleView()">Switch View</button>
+</div>
+
+<script>
+function filterPerson(person, btn) {
+    document.querySelectorAll('.person-filter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.m-card').forEach(card => {
+        card.style.display = (person === 'all' || card.dataset.person === person) ? '' : 'none';
+    });
+}
+function toggleView() {
+    const d = document.querySelector('.desktop-view');
+    const m = document.querySelector('.mobile-view');
+    if (d.style.display === 'none') {
+        d.style.display = ''; m.style.display = 'none';
+    } else {
+        d.style.display = 'none'; m.style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>
