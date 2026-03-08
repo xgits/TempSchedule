@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDC Schedule - Monday (2026-03-09)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; }
+
+.page-header {
+    background: linear-gradient(135deg, #1a237e, #283593);
+    color: white; padding: 20px 30px;
+}
+.page-header h1 { font-size: 24px; margin-bottom: 4px; }
+.page-header .subtitle { opacity: 0.8; font-size: 14px; }
+.stats-bar {
+    background: #fff; padding: 10px 30px; border-bottom: 1px solid #ddd;
+    display: flex; gap: 20px; font-size: 13px; color: #666;
+}
+.stats-bar span { font-weight: 600; color: #333; }
+
+.schedule-container { padding: 20px 30px; }
+
+.columns-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    gap: 4px; margin-bottom: 8px;
+}
+.col-header {
+    color: white; padding: 12px; border-radius: 6px; text-align: center;
+}
+.col-header .col-name { font-size: 20px; font-weight: 700; }
+.col-header .col-role { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+.col-header .col-stats { font-size: 11px; opacity: 0.7; margin-top: 4px; }
+
+.timeline-wrapper {
+    position: relative;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+}
+.time-axis { position: relative; height: 1950.0px; }
+.time-label {
+    position: absolute; right: 8px; font-size: 11px; color: #999;
+    transform: translateY(-50%); font-weight: 500;
+}
+.timeline-body {
+    position: relative;
+    height: 1950.0px;
+}
+.time-grid-line {
+    position: absolute; left: 60px; right: 0; height: 1px;
+    background: #e0e0e0; z-index: 0;
+}
+.session-block {
+    position: absolute; z-index: 1;
+    border-radius: 6px; padding: 8px 10px;
+    overflow: hidden; cursor: pointer;
+    transition: box-shadow 0.2s, z-index 0s;
+    font-size: 12px;
+}
+.session-block:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; }
+.session-block.detail-open {
+    overflow: visible; z-index: 20;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    height: auto !important; min-height: 120px;
+}
+.session-header { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+.score-badge {
+    display: inline-block; min-width: 22px; height: 22px;
+    line-height: 22px; text-align: center; border-radius: 4px;
+    color: white; font-weight: 700; font-size: 11px; flex-shrink: 0;
+}
+.session-title { font-weight: 600; font-size: 12px; line-height: 1.3; }
+.session-meta { font-size: 11px; color: #555; margin-bottom: 3px; }
+.session-reason { font-size: 11px; color: #666; font-style: italic; }
+.session-detail { display: none; margin-top: 6px; font-size: 11px; color: #555; }
+.detail-open .session-detail { display: block; }
+.detail-tracks { color: #1565c0; margin-bottom: 2px; }
+.detail-speakers { color: #666; margin-bottom: 4px; }
+.detail-desc { line-height: 1.4; }
+
+.alts-section { margin-top: 6px; border-top: 1px dashed #ccc; padding-top: 4px; }
+.alts-label { font-size: 10px; color: #999; font-weight: 600; margin-bottom: 3px; }
+.alt-chip {
+    display: flex; align-items: center; gap: 4px;
+    padding: 3px 6px; margin: 2px 0; border-radius: 4px;
+    background: rgba(255,255,255,0.6); cursor: pointer;
+    font-size: 11px; flex-wrap: wrap;
+}
+.alt-chip:hover { background: rgba(255,255,255,0.9); }
+.alt-score {
+    display: inline-block; width: 18px; height: 18px;
+    line-height: 18px; text-align: center; border-radius: 3px;
+    color: white; font-weight: 700; font-size: 10px; flex-shrink: 0;
+}
+.alt-title { font-weight: 500; }
+.alt-detail { display: none; width: 100%; font-size: 10px; color: #666; padding: 4px 0 2px 22px; }
+.alt-chip.expanded .alt-detail { display: block; }
+.alt-reason { font-style: italic; }
+.alt-desc { margin-top: 2px; line-height: 1.3; }
+
+.unattended-section {
+    margin-top: 30px; background: white; border-radius: 8px;
+    padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.unattended-section h2 { font-size: 16px; margin-bottom: 12px; color: #c62828; }
+.unattended-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0; flex-wrap: wrap; font-size: 12px;
+}
+.unattended-person { font-weight: 700; font-size: 11px; }
+.unattended-title { font-weight: 600; }
+.unattended-meta { color: #999; font-size: 11px; }
+.unattended-reason { width: 100%; font-size: 11px; color: #666; font-style: italic; padding-left: 30px; }
+
+.legend {
+    display: flex; gap: 16px; margin: 16px 0; font-size: 12px; align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+
+/* ── Mobile View ── */
+.mobile-view { display: none; }
+.view-toggle { display: none; position: fixed; bottom: 16px; right: 16px; z-index: 100; }
+.view-toggle button {
+    padding: 10px 16px; border: none; border-radius: 20px;
+    background: #1976d2; color: white; font-size: 13px; font-weight: 600;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3); cursor: pointer;
+}
+.person-filter { display: none; gap: 8px; margin-bottom: 16px; padding: 0 16px; flex-wrap: wrap; }
+.person-filter button {
+    padding: 8px 16px; border: 2px solid #ddd; border-radius: 20px;
+    background: white; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.person-filter button.active { border-color: currentColor; }
+.person-filter .f-LD { color: #1565c0; }
+.person-filter .f-GW { color: #2e7d32; }
+.person-filter .f-LYF { color: #e65100; }
+.person-filter .f-all { color: #333; }
+
+.m-card {
+    margin: 8px 16px; border-radius: 10px; padding: 14px; font-size: 13px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.m-card .m-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.m-card .m-person {
+    padding: 2px 8px; border-radius: 4px; color: white; font-size: 11px; font-weight: 700;
+}
+.m-card .m-title { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.m-card .m-meta { font-size: 12px; color: #666; margin-bottom: 4px; }
+.m-card .m-reason { font-size: 12px; color: #555; font-style: italic; }
+.m-card .m-alts { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ddd; }
+.m-card .m-alt {
+    display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px; cursor: pointer;
+}
+.m-card .m-alt-detail { display: none; font-size: 11px; color: #666; padding: 4px 0 4px 28px; }
+.m-card .m-alt.expanded .m-alt-detail { display: block; }
+
+@media (max-width: 768px) {
+    .desktop-view { display: none; }
+    .mobile-view { display: block; }
+    .view-toggle { display: block; }
+    .person-filter { display: flex; }
+    .page-header { padding: 16px; }
+    .page-header h1 { font-size: 18px; }
+    .stats-bar { padding: 8px 16px; font-size: 12px; flex-wrap: wrap; gap: 8px; }
+    .schedule-container { padding: 8px 0; }
+    .legend { display: none; }
+    .unattended-section { margin: 16px; }
+}
+@media print {
+    .session-block { break-inside: avoid; }
+    .session-block.detail-open { overflow: hidden; }
+    .view-toggle { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+    <h1>GDC 2026 Schedule - Monday</h1>
+    <div class="subtitle">2026-03-09 | Generated 2026-03-07 23:18</div>
+</div>
+
+<div class="stats-bar">
+    Total sessions: <span>120</span> |
+    Assigned: <span>14</span> |
+    Total score: <span>105</span>
+</div>
+
+<div class="schedule-container">
+    <!-- Desktop View -->
+    <div class="desktop-view">
+        <div class="legend">
+            <span>Score: </span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#2e7d32"></span> 8-10</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#f9a825"></span> 6-7</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#ef6c00"></span> 4-5</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#c62828"></span> 1-3</span>
+            <span style="margin-left:16px">Click session to expand details. Click alternative to see info.</span>
+        </div>
+
+        <div class="columns-header">
+            <div></div>
+            <div class="col-header" style="background:#1565c0">
+            <div class="col-name">LD</div>
+            <div class="col-role">Technical Art Lead (技术美术组长)</div>
+            <div class="col-stats">7 sessions | Score: 52</div>
+        </div><div class="col-header" style="background:#2e7d32">
+            <div class="col-name">GW</div>
+            <div class="col-role">Mobile Engine Lead (Mobile引擎组长)</div>
+            <div class="col-stats">4 sessions | Score: 31</div>
+        </div><div class="col-header" style="background:#e65100">
+            <div class="col-name">LYF</div>
+            <div class="col-role">Senior PC Graphics Programmer (PC资深图形程序)</div>
+            <div class="col-stats">3 sessions | Score: 22</div>
+        </div>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div class="time-axis">
+                <div class="time-label" style="top:0.0px">09:00</div><div class="time-grid-line" style="top:0.0px"></div><div class="time-label" style="top:75.0px">09:30</div><div class="time-grid-line" style="top:75.0px"></div><div class="time-label" style="top:150.0px">10:00</div><div class="time-grid-line" style="top:150.0px"></div><div class="time-label" style="top:225.0px">10:30</div><div class="time-grid-line" style="top:225.0px"></div><div class="time-label" style="top:300.0px">11:00</div><div class="time-grid-line" style="top:300.0px"></div><div class="time-label" style="top:375.0px">11:30</div><div class="time-grid-line" style="top:375.0px"></div><div class="time-label" style="top:450.0px">12:00</div><div class="time-grid-line" style="top:450.0px"></div><div class="time-label" style="top:525.0px">12:30</div><div class="time-grid-line" style="top:525.0px"></div><div class="time-label" style="top:600.0px">13:00</div><div class="time-grid-line" style="top:600.0px"></div><div class="time-label" style="top:675.0px">13:30</div><div class="time-grid-line" style="top:675.0px"></div><div class="time-label" style="top:750.0px">14:00</div><div class="time-grid-line" style="top:750.0px"></div><div class="time-label" style="top:825.0px">14:30</div><div class="time-grid-line" style="top:825.0px"></div><div class="time-label" style="top:900.0px">15:00</div><div class="time-grid-line" style="top:900.0px"></div><div class="time-label" style="top:975.0px">15:30</div><div class="time-grid-line" style="top:975.0px"></div><div class="time-label" style="top:1050.0px">16:00</div><div class="time-grid-line" style="top:1050.0px"></div><div class="time-label" style="top:1125.0px">16:30</div><div class="time-grid-line" style="top:1125.0px"></div><div class="time-label" style="top:1200.0px">17:00</div><div class="time-grid-line" style="top:1200.0px"></div><div class="time-label" style="top:1275.0px">17:30</div><div class="time-grid-line" style="top:1275.0px"></div><div class="time-label" style="top:1350.0px">18:00</div><div class="time-grid-line" style="top:1350.0px"></div><div class="time-label" style="top:1425.0px">18:30</div><div class="time-grid-line" style="top:1425.0px"></div><div class="time-label" style="top:1500.0px">19:00</div><div class="time-grid-line" style="top:1500.0px"></div><div class="time-label" style="top:1575.0px">19:30</div><div class="time-grid-line" style="top:1575.0px"></div><div class="time-label" style="top:1650.0px">20:00</div><div class="time-grid-line" style="top:1650.0px"></div><div class="time-label" style="top:1725.0px">20:30</div><div class="time-grid-line" style="top:1725.0px"></div><div class="time-label" style="top:1800.0px">21:00</div><div class="time-grid-line" style="top:1800.0px"></div><div class="time-label" style="top:1875.0px">21:30</div><div class="time-grid-line" style="top:1875.0px"></div><div class="time-label" style="top:1950.0px">22:00</div><div class="time-grid-line" style="top:1950.0px"></div>
+            </div>
+            <div class="timeline-body">
+                <div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 225.0px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">8</span>
+                    <span class="session-title">Machine Learning Forum: Ask the Experts</span>
+                </div>
+                <div class="session-meta">10:30-11:30 | 3004, West Hall</div>
+                <div class="session-reason">Directly addresses AI impact on pipelines, highly relevant to tech art</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Martin Singh-Blom(Embark Studios), Alessandro Sestini(Electronic Arts, SEED), Alexis Rolland(Ubisoft, La Forge), Alexandre Moufarek(Google DeepMind), Zhen Zhai(Blizzard Entertainment), Julien Merceron(Orion Productions)</div>
+                    <div class="detail-desc">The GDC Machine Learning Summit Chairs have designed this Forum session for you. Why? To give you a place to ask any questions you might have about Ma</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#2e7d32">8</span>
+                        <span class="alt-title">How AI is Reshaping Game Creation (Presented by Google Cloud)</span>
+                        <div class="alt-detail">
+                            <div>10:10-11:10 | 2020, West Hall</div>
+                            <div class="alt-reason">AI impact on game dev pipelines highly relevant</div>
+                            <div class="alt-desc">Step into the studio with leading game makers who are crafting the next generation of interactive entertainment. In this session, gaming industry leaders will share how AI is augmenting tools, engines</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Tools Roundtable Day 1: Engineering</span>
+                        <div class="alt-detail">
+                            <div>10:30-11:30 | 314, South Hall</div>
+                            <div class="alt-reason">Tools engineering, relevant to tech art pipelines</div>
+                            <div class="alt-desc">The Tools Technology Roundtables&#39; focus on discussion of best practices, novel techniques, and technical trade-offs for building game development tools and services. Game development tools are constan</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Adobe Substance 3D State of the Ecosystem (Presented by Adobe)</span>
+                        <div class="alt-detail">
+                            <div>10:10-11:10 | 3001, West Hall</div>
+                            <div class="alt-reason">Substance 3D ecosystem updates relevant to material systems</div>
+                            <div class="alt-desc">Stay up to date with the latest innovations across the Adobe Substance 3D ecosystem. Dive into the latest product updates and releases, including a focused look at OpenPBR and how it&#39;s shaping the fut</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 425.0px;
+                height: 75.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <span class="session-title">Optimizing a Large, Time-Critical Problem: Occlusion Culling at &#39;Roblox&#39;</span>
+                </div>
+                <div class="session-meta">11:50-12:20 | 2006, West Hall</div>
+                <div class="session-reason">Occlusion culling highly relevant to rendering optimization</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Visual Development, Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Earl Hammon(Roblox)</div>
+                    <div class="detail-desc">How do you occlusion cull fully dynamic, user-generated content? We don&#39;t know what parts of the scene are static, since we free creators to change an</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#2e7d32">8</span>
+                        <span class="alt-title">From Beautiful to Playable: Texture Compression Secrets Every Game Artist Should Know</span>
+                        <div class="alt-detail">
+                            <div>11:50-12:20 | 2001, West Hall</div>
+                            <div class="alt-reason">Texture compression directly relevant to art pipelines</div>
+                            <div class="alt-desc">This session demystifies export formats, engine import settings, and platform-specific texture handling - providing practical guidance for maximizing visual quality while keeping performance and memor</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Building the Dark Fantasy Materials of &#39;DOOM: The Dark Ages&#39; (Presented by Adobe)</span>
+                        <div class="alt-detail">
+                            <div>11:30-12:30 | 3001, West Hall</div>
+                            <div class="alt-reason">Material creation pipeline insights</div>
+                            <div class="alt-desc">Explore the material creation pipeline behind DOOM: The Dark Ages as Kat Tamburello guides you through the procedural systems and artistic strategies that enabled a small team to build a dark fantasy </div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Generative Recommender Post-Trained by Reinforcement Learning in Video Games</span>
+                        <div class="alt-detail">
+                            <div>11:50-12:20 | 3004, West Hall</div>
+                            <div class="alt-reason">AI recommender system, some relevance to AI pipelines</div>
+                            <div class="alt-desc">The exponential growth of online gaming generates vast amounts data but also presents unique challenges for recommendation systems—including fluctuating player interests, complex social graphs, and di</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 562.5px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <span class="session-title">The Future of Playable Worlds with Google DeepMind (Presented by Google Cloud)</span>
+                </div>
+                <div class="session-meta">12:45-13:45 | 2020, West Hall</div>
+                <div class="session-reason">AI integration in game engines, highly relevant</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Ivan Ramirez(Google Cloud), Targoon Siripanichpong(Google Cloud), Jamie Pourturk(Google Cloud), Alexandre Moufarek(Google DeepMind), Piermaria Mendolicchio(Google DeepMind)</div>
+                    <div class="detail-desc">Google is redefining the gaming landscape by bridging the gap between foundational AI research and enterprise-scale cloud infrastructure. By integrati</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Four Artists Use Substance 3D to Texture &#39;Clair Obscur: Expedition 33&#39; (Presented by Adobe)</span>
+                        <div class="alt-detail">
+                            <div>12:45-13:45 | 3001, West Hall</div>
+                            <div class="alt-reason">Texturing workflows, moderately relevant to tech art</div>
+                            <div class="alt-desc">Sandfall Interactive&#39;s Lead Character Artist Alan Reynaud and Environment Artist Mathieu Costat will share how they approached texturing Clair Obscur: Expedition 33 with only a small, predominantly ju</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 725.0px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">7</span>
+                    <span class="session-title">Global Pipelines Roundtable</span>
+                </div>
+                <div class="session-meta">13:50-14:50 | 314, South Hall</div>
+                <div class="session-reason">Discusses pipeline trends and MLOps integration, relevant to AI and pipelines</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Visual Development, Production</div>
+                    <div class="detail-speakers">David Vega(The Digital Production Pipeline Association), Fran Zandonella Benjamin(The Digital Production Pipeline Association)</div>
+                    <div class="detail-desc">As production demands grow and workflows diversify, developing and maintaining a robust, adaptable pipeline is more critical than ever. This casual ro</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Reinforcement Learning in &#39;FC26&#39;: Shipping Human-Like Goalkeepers with a Designer-First Approach</span>
+                        <div class="alt-detail">
+                            <div>13:50-14:50 | 2006, West Hall</div>
+                            <div class="alt-reason">Covers AI pipeline integration, relevant to tech art workflows</div>
+                            <div class="alt-desc">In this talk, we will explore the integration of a designer-first reinforcement learning approach into EA SPORTS FC 26. The approach focuses on creating human-like AI behaviors for the game&#39;s goalkeep</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Art Production Pipeline in 2026 and Beyond Roundtable (Presented by the IGDA)</span>
+                        <div class="alt-detail">
+                            <div>13:50-14:50 | 301, South Hall</div>
+                            <div class="alt-reason">Discusses AI impact on art pipelines, relevant but high-level</div>
+                            <div class="alt-desc">In this fifth edition of the Game Art SIG&#39;s GDC Roundtable, we bring together professional developers, educators, and students to discuss the rapidly evolving landscape of game art production. Alongsi</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Using Telemetry (the Right Way) is a Game-Changer for Game Tools</span>
+                        <div class="alt-detail">
+                            <div>13:50-14:50 | 3005, West Hall</div>
+                            <div class="alt-reason">Telemetry for tools, moderately relevant to tech art pipelines</div>
+                            <div class="alt-desc">Telemetry can be a game-changer in helping you develop better tools, but without watching users work, it can also be deeply misleading.  Using real-world examples, this talk offers practical and act</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 875.0px;
+                height: 75.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">7</span>
+                    <span class="session-title">Reusable Material Systems: Vinyl Flooring for Scalable Environments (Presented by Adobe)</span>
+                </div>
+                <div class="session-meta">14:50-15:20 | 3001, West Hall</div>
+                <div class="session-reason">Material creation, relevant to tech art workflows</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Vincent Dérozier(Independent)</div>
+                    <div class="detail-desc">Explore the process of creating a convincing vinyl flooring material with Substance 3D Designer from start to finish. Vincent Dérozier will walk throu</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#2e7d32">9</span>
+                        <span class="alt-title">AI Models for 2D Generation</span>
+                        <div class="alt-detail">
+                            <div>15:10-16:10 | 3004, West Hall</div>
+                            <div class="alt-reason">AI workflows, directly addresses pipeline integration</div>
+                            <div class="alt-desc">Ubisoft La Forge shares its pioneering work in generative AI for 2D image creation, built through close collaboration between artists and R&amp;D teams. This session explores Ubisoft&#39;s research around a c</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Game AI Roundtable Day 1</span>
+                        <div class="alt-detail">
+                            <div>15:10-16:10 | 308, South Hall</div>
+                            <div class="alt-reason">AI roundtable relevant to AI impact on pipelines</div>
+                            <div class="alt-desc">The Game AI Roundtable is organized into three sessions, with each session having its own focus.  Session 1 centers on traditional, non-ML game AI. Topics include behavior trees, utility systems, na</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Constructing Minietopia from a Micro Perspective: Concept Design and Implementation of &#39;Animula Nook&#39; (Presented by Tencent Games)</span>
+                        <div class="alt-detail">
+                            <div>14:50-15:20 | 2024, West Hall</div>
+                            <div class="alt-reason">Stylized rendering, some platform-specific insights</div>
+                            <div class="alt-desc">The artists behind Animula Nook, a cozy Lilliput fantasy life simulation, will share the visual design and technical solutions they employed to construct a believable, warm, and healing micro-world. </div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 1000.0px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">6</span>
+                    <span class="session-title">Through the Looking Glass: The Art of &#39;South of Midnight&#39; (Presented by Adobe)</span>
+                </div>
+                <div class="session-meta">15:40-16:40 | 3001, West Hall</div>
+                <div class="session-reason">Art pipelines relevant but lacks technical depth</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Chad Emond(Compulsion Games), Paulette Richardson(Compulsion Games)</div>
+                    <div class="detail-desc">Paulette Richardson and Chad Emond from Compulsion Games will share insights into the handcrafted art style behind the environments and characters of </div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#2e7d32">9</span>
+                        <span class="alt-title">AI Models for 2D Generation</span>
+                        <div class="alt-detail">
+                            <div>15:10-16:10 | 3004, West Hall</div>
+                            <div class="alt-reason">AI workflows, directly addresses pipeline integration</div>
+                            <div class="alt-desc">Ubisoft La Forge shares its pioneering work in generative AI for 2D image creation, built through close collaboration between artists and R&amp;D teams. This session explores Ubisoft&#39;s research around a c</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Game AI Roundtable Day 1</span>
+                        <div class="alt-detail">
+                            <div>15:10-16:10 | 308, South Hall</div>
+                            <div class="alt-reason">AI roundtable relevant to AI impact on pipelines</div>
+                            <div class="alt-desc">The Game AI Roundtable is organized into three sessions, with each session having its own focus.  Session 1 centers on traditional, non-ML game AI. Topics include behavior trees, utility systems, na</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Controlled Chaos: 12 Principles of Design for VFX</span>
+                        <div class="alt-detail">
+                            <div>15:10-16:10 | 2001, West Hall</div>
+                            <div class="alt-reason">VFX design principles relevant to visual style R&amp;D</div>
+                            <div class="alt-desc">Is your work missing something special? Not quite jumping off the screen? This lecture dives into how the 12 principles of design—evolved from Disney&#39;s legendary animation fundamentals—can strengthen </div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(0 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 1200.0px;
+                height: 150.0px;
+                background: #e3f2fd;
+                border-left: 4px solid #1976d2;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">6</span>
+                    <span class="session-title">Aged by Adventure: Crafting the Time-Worn World of &#39;Indiana Jones and the Great Circle&#39; (Presented by Adobe)</span>
+                </div>
+                <div class="session-meta">17:00-18:00 | 3001, West Hall</div>
+                <div class="session-reason">Material aging techniques, relevant to tech art</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Vytautas Katarzis(MachineGames), Antonio Vaz Figueiredo(MachineGames), Michael Tran(MachineGames)</div>
+                    <div class="detail-desc">Explores how MachineGames approached aging and texturing across diverse environments in Indiana Jones and the Great Circle. Ranging across the marble </div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">5</span>
+                        <span class="alt-title">Cutscene Pipeline in &#39;Love and Deepspace&#39; (Presented by Tencent Games)</span>
+                        <div class="alt-detail">
+                            <div>17:30-18:00 | 2024, West Hall</div>
+                            <div class="alt-reason">Cutscene pipeline, moderately relevant to tech art</div>
+                            <div class="alt-desc">To craft an immersive romance, Love and Deepspace relies on cinematic, film-quality cutscenes—delivered within the relentless pace of live-service development. Our core challenge was building a pipeli</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 225.0px;
+                height: 150.0px;
+                background: #e8f5e9;
+                border-left: 4px solid #388e3c;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">8</span>
+                    <span class="session-title">UX Mobile Porting Challenges in &#39;Prince of Persia: The Lost Crown&#39; Case Study</span>
+                </div>
+                <div class="session-meta">10:30-11:30 | 3002, West Hall</div>
+                <div class="session-reason">Mobile porting challenges, UX adaptations</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Design</div>
+                    <div class="detail-speakers">Alexis Denance(Ubisoft Da Nang)</div>
+                    <div class="detail-desc">The porting team approach to adapting Prince of Persia: The Lost Crown on Mobile. The team identified early on the challenges linked to a platformer </div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Modernizing the Rendering of &#39;Minecraft&#39;</span>
+                        <div class="alt-detail">
+                            <div>10:30-11:30 | 2006, West Hall</div>
+                            <div class="alt-reason">Cross-platform rendering optimizations, technical depth</div>
+                            <div class="alt-desc">Minecraft&#39;s charming, minimalistic art style has always been one of the aspects that defines the brand, but over time we&#39;ve seen a growing desire from players for evolutions to the graphical capabilit</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">How AI is Reshaping Game Creation (Presented by Google Cloud)</span>
+                        <div class="alt-detail">
+                            <div>10:10-11:10 | 2020, West Hall</div>
+                            <div class="alt-reason">AI in game dev, some pipeline relevance</div>
+                            <div class="alt-desc">Step into the studio with leading game makers who are crafting the next generation of interactive entertainment. In this session, gaming industry leaders will share how AI is augmenting tools, engines</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Tools Roundtable Day 1: Engineering</span>
+                        <div class="alt-detail">
+                            <div>10:30-11:30 | 314, South Hall</div>
+                            <div class="alt-reason">Engineering tools discussion, some mobile relevance</div>
+                            <div class="alt-desc">The Tools Technology Roundtables&#39; focus on discussion of best practices, novel techniques, and technical trade-offs for building game development tools and services. Game development tools are constan</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 375.0px;
+                height: 150.0px;
+                background: #e8f5e9;
+                border-left: 4px solid #388e3c;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">10</span>
+                    <span class="session-title">Tuning Your Unreal Engine 5 Game for Mobile Deployment (Presented by Epic Games)</span>
+                </div>
+                <div class="session-meta">11:30-12:30 | 2011, West Hall</div>
+                <div class="session-reason">Directly addresses UE5 mobile optimization and scalability</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Paul Georges(Epic Games)</div>
+                    <div class="detail-desc">Mobile devices span a wide range of capabilities, from budget options to flagship models. How do you build a single Unreal Engine 5 project that runs </div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#2e7d32">8</span>
+                        <span class="alt-title">From Beautiful to Playable: Texture Compression Secrets Every Game Artist Should Know</span>
+                        <div class="alt-detail">
+                            <div>11:50-12:20 | 2001, West Hall</div>
+                            <div class="alt-reason">Covers texture compression and optimization for mobile platforms</div>
+                            <div class="alt-desc">This session demystifies export formats, engine import settings, and platform-specific texture handling - providing practical guidance for maximizing visual quality while keeping performance and memor</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 750.0px;
+                height: 75.0px;
+                background: #e8f5e9;
+                border-left: 4px solid #388e3c;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">7</span>
+                    <span class="session-title">Trust, Attest, Server-Authoritative: Modern iOS Anti-Cheat for Multiplayer (Presented by GameSafe)</span>
+                </div>
+                <div class="session-meta">14:00-14:30 | 2009, West Hall</div>
+                <div class="session-reason">iOS-specific anti-cheat, relevant to mobile performance</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Yue Wang(Tencent Games)</div>
+                    <div class="detail-desc">A practical guide to modern iOS anti-cheat engineering. Learn how to combine Apple&#39;s attestation APIs (App Attest, DeviceCheck) with runtime integrity</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">&#39;Clair Obscur: Expedition 33&#39;: Delivering a Wide Scope of Features &amp; Content When You Only Have Four Programmers</span>
+                        <div class="alt-detail">
+                            <div>13:50-14:50 | 3004, West Hall</div>
+                            <div class="alt-reason">Covers Unreal Engine optimization, but not mobile-specific</div>
+                            <div class="alt-desc">Starting as a one-person effort, the programming team for Clair Obscur: Expedition 33 then ramped up to four members over the last three years of production. With a scope of 30+ hours of story content</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">From Code to Game: Empowering Developers with JetBrains Rider and TeamCity (Presented by JetBrains)</span>
+                        <div class="alt-detail">
+                            <div>14:00-14:30 | 2011, West Hall</div>
+                            <div class="alt-reason">Covers mobile debugging, but focuses on IDE tools</div>
+                            <div class="alt-desc">Your ideas, your code, your game. JetBrains tools are here to make the journey smooth, fast and enjoyable.  Together, let&#39;s see how JetBrains Rider helps you write the code you need. With impressive</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">5</span>
+                        <span class="alt-title">Beyond the Build: Turning Your Studio into a Supercomputer (Presented by Incredibuild)</span>
+                        <div class="alt-detail">
+                            <div>14:00-14:30 | 2000, West Hall</div>
+                            <div class="alt-reason">Distributed tasks, some relevance to mobile optimization</div>
+                            <div class="alt-desc">In modern game development, the local workstation has become a critical bottleneck for studio throughput. Whether it&#39;s massive shader compilations, heavy bake cycles, or complex GPU-driven tasks, wait</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(1 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 1125.0px;
+                height: 150.0px;
+                background: #e8f5e9;
+                border-left: 4px solid #388e3c;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#f9a825">6</span>
+                    <span class="session-title">Automated Testing Roundtable Day 1</span>
+                </div>
+                <div class="session-meta">16:30-17:30 | 308, South Hall</div>
+                <div class="session-reason">Automated testing relevant to cross-platform dev</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Andrew Fray(Automated AF)</div>
+                    <div class="detail-desc">Day 1: Process Automated testing provides a team with stability across development, allowing early feedback, fast iteration and empowering QA. Yet in</div>
+                </div>
+                
+            </div><div class="session-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 175.0px;
+                height: 150.0px;
+                background: #fff3e0;
+                border-left: 4px solid #f57c00;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">9</span>
+                    <span class="session-title">Hitting 60 FPS in UE5 and Keeping It There (Presented by Epic Games)</span>
+                </div>
+                <div class="session-meta">10:10-11:10 | 2011, West Hall</div>
+                <div class="session-reason">Directly addresses UE5 performance optimization</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Matt Oztalay(Epic Games)</div>
+                    <div class="detail-desc">Epic Games&#39; Matt Oztalay can talk about how to get your project running at your target frame rate until he&#39;s hoarse (and in fact has!). Wouldn&#39;t it be</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">7</span>
+                        <span class="alt-title">Modernizing the Rendering of &#39;Minecraft&#39;</span>
+                        <div class="alt-detail">
+                            <div>10:30-11:30 | 2006, West Hall</div>
+                            <div class="alt-reason">Covers rendering evolution and optimizations</div>
+                            <div class="alt-desc">Minecraft&#39;s charming, minimalistic art style has always been one of the aspects that defines the brand, but over time we&#39;ve seen a growing desire from players for evolutions to the graphical capabilit</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">VFX Roundtable Day 1</span>
+                        <div class="alt-detail">
+                            <div>10:30-11:30 | 312, South Hall</div>
+                            <div class="alt-reason">VFX techniques, some graphics relevance</div>
+                            <div class="alt-desc">On Day 1, Ellie and Jason will facilitate the roundtable covering general topics and revisit topics from the VFX Summit earlier in the week.  The roundtable on Day 2 will focus on VFX through an ART</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">5</span>
+                        <span class="alt-title">Tools Roundtable Day 1: Engineering</span>
+                        <div class="alt-detail">
+                            <div>10:30-11:30 | 314, South Hall</div>
+                            <div class="alt-reason">Tools engineering, some pipeline relevance</div>
+                            <div class="alt-desc">The Tools Technology Roundtables&#39; focus on discussion of best practices, novel techniques, and technical trade-offs for building game development tools and services. Game development tools are constan</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 450.0px;
+                height: 75.0px;
+                background: #fff3e0;
+                border-left: 4px solid #f57c00;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#2e7d32">8</span>
+                    <span class="session-title">Metaperf: Industrializing Performance Optimization for &#39;Delta Force&#39; (Presented by Tencent Games)</span>
+                </div>
+                <div class="session-meta">12:00-12:30 | 2024, West Hall</div>
+                <div class="session-reason">Covers cross-platform performance optimization with AI-driven profiling</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Game &amp; Production Technology</div>
+                    <div class="detail-speakers">Mingtong Chen(Team Jade / Tencent Games), Qingyu Tan(Team Jade / Tencent Games)</div>
+                    <div class="detail-desc">The Delta Force development team tackles the challenge of cross-platform performance optimization for highly complex, large-scale gameplay—particularl</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">Building the Dark Fantasy Materials of &#39;DOOM: The Dark Ages&#39; (Presented by Adobe)</span>
+                        <div class="alt-detail">
+                            <div>11:30-12:30 | 3001, West Hall</div>
+                            <div class="alt-reason">Material creation pipeline, relevant to rendering techniques</div>
+                            <div class="alt-desc">Explore the material creation pipeline behind DOOM: The Dark Ages as Kat Tamburello guides you through the procedural systems and artistic strategies that enabled a small team to build a dark fantasy </div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#f9a825">6</span>
+                        <span class="alt-title">From Beautiful to Playable: Texture Compression Secrets Every Game Artist Should Know</span>
+                        <div class="alt-detail">
+                            <div>11:50-12:20 | 2001, West Hall</div>
+                            <div class="alt-reason">Texture compression, relevant but not core graphics programming</div>
+                            <div class="alt-desc">This session demystifies export formats, engine import settings, and platform-specific texture handling - providing practical guidance for maximizing visual quality while keeping performance and memor</div>
+                        </div>
+                    </div></div>
+            </div><div class="session-block" style="
+                left: calc(2 * (100% / 3));
+                width: calc(100% / 3 - 4px);
+                top: 750.0px;
+                height: 75.0px;
+                background: #fff3e0;
+                border-left: 4px solid #f57c00;
+            " onclick="this.classList.toggle('detail-open')">
+                <div class="session-header">
+                    <span class="score-badge" style="background:#ef6c00">5</span>
+                    <span class="session-title">High-Fidelity on PC and Mobile: The &#39;Delta Force&#39; Character Production Pipeline (Presented by Tencent Games)</span>
+                </div>
+                <div class="session-meta">14:00-14:30 | 2024, West Hall</div>
+                <div class="session-reason">Character pipeline, some PC relevance</div>
+                <div class="session-detail">
+                    <div class="detail-tracks">Design, Visual Development</div>
+                    <div class="detail-speakers">Rui Mu(Team Jade / Tencent Games)</div>
+                    <div class="detail-desc">Ensuring games are available across multiple platforms is increasingly essential in an age where game budgets and competition for player attention con</div>
+                </div>
+                <div class="alts-section"><div class="alts-label">Alternatives:</div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">&#39;Clair Obscur: Expedition 33&#39;: Delivering a Wide Scope of Features &amp; Content When You Only Have Four Programmers</span>
+                        <div class="alt-detail">
+                            <div>13:50-14:50 | 3004, West Hall</div>
+                            <div class="alt-reason">Unreal Engine usage, but lacks graphics programming focus</div>
+                            <div class="alt-desc">Starting as a one-person effort, the programming team for Clair Obscur: Expedition 33 then ramped up to four members over the last three years of production. With a scope of 30+ hours of story content</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">How to Win a VES Award</span>
+                        <div class="alt-detail">
+                            <div>13:50-14:50 | 2001, West Hall</div>
+                            <div class="alt-reason">VFX awards tangentially related to graphics</div>
+                            <div class="alt-desc">For over 20 years, the Visual Effects Society has had an award for &#39;Outstanding Visual Effects in a Real Time Project&#39;. Only 9 people, worldwide have won this category multiple times.  Join us as th</div>
+                        </div>
+                    </div><div class="alt-chip" onclick="this.classList.toggle('expanded')">
+                        <span class="alt-score" style="background:#ef6c00">4</span>
+                        <span class="alt-title">Beyond the Build: Turning Your Studio into a Supercomputer (Presented by Incredibuild)</span>
+                        <div class="alt-detail">
+                            <div>14:00-14:30 | 2000, West Hall</div>
+                            <div class="alt-reason">Distributed computing, not graphics-specific</div>
+                            <div class="alt-desc">In modern game development, the local workstation has become a critical bottleneck for studio throughput. Whether it&#39;s massive shader compilations, heavy bake cycles, or complex GPU-driven tasks, wait</div>
+                        </div>
+                    </div></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile View -->
+    <div class="mobile-view">
+        <div class="person-filter">
+            <button class="f-all active" onclick="filterPerson('all', this)">All</button>
+            <button class="f-LD" onclick="filterPerson('LD', this)">LD</button>
+            <button class="f-GW" onclick="filterPerson('GW', this)">GW</button>
+            <button class="f-LYF" onclick="filterPerson('LYF', this)">LYF</button>
+        </div>
+        <div class="m-card" data-person="LYF" style="background:#fff3e0;border-left:4px solid #f57c00">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#f57c00">LYF</span>
+                <span class="m-title">Hitting 60 FPS in UE5 and Keeping It There (Presented by Epic Games)</span>
+            </div>
+            <div class="m-meta">10:10-11:10 | 2011, West Hall</div>
+            <div class="m-meta" style="color:#888">Matt Oztalay(Epic Games)</div>
+            <div class="m-reason">Directly addresses UE5 performance optimization</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Modernizing the Rendering of &#39;Minecraft&#39;</span>
+                    <div class="m-alt-detail">10:30-11:30 | 2006, West Hall<br>Covers rendering evolution and optimizations</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>VFX Roundtable Day 1</span>
+                    <div class="m-alt-detail">10:30-11:30 | 312, South Hall<br>VFX techniques, some graphics relevance</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">5</span>
+                    <span>Tools Roundtable Day 1: Engineering</span>
+                    <div class="m-alt-detail">10:30-11:30 | 314, South Hall<br>Tools engineering, some pipeline relevance</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">8</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Machine Learning Forum: Ask the Experts</span>
+            </div>
+            <div class="m-meta">10:30-11:30 | 3004, West Hall</div>
+            <div class="m-meta" style="color:#888">Martin Singh-Blom(Embark Studios), Alessandro Sestini(Electronic Arts, SEED), Alexis Rolland(Ubisoft, La Forge), Alexandre Moufarek(Google DeepMind), Zhen Zhai(Blizzard Entertainment), Julien Merceron(Orion Productions)</div>
+            <div class="m-reason">Directly addresses AI impact on pipelines, highly relevant to tech art</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#2e7d32;min-width:20px;height:20px;line-height:20px;font-size:10px">8</span>
+                    <span>How AI is Reshaping Game Creation (Presented by Google Cloud)</span>
+                    <div class="m-alt-detail">10:10-11:10 | 2020, West Hall<br>AI impact on game dev pipelines highly relevant</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Tools Roundtable Day 1: Engineering</span>
+                    <div class="m-alt-detail">10:30-11:30 | 314, South Hall<br>Tools engineering, relevant to tech art pipelines</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Adobe Substance 3D State of the Ecosystem (Presented by Adobe)</span>
+                    <div class="m-alt-detail">10:10-11:10 | 3001, West Hall<br>Substance 3D ecosystem updates relevant to material systems</div>
+                </div></div>
+        </div><div class="m-card" data-person="GW" style="background:#e8f5e9;border-left:4px solid #388e3c">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">8</span>
+                <span class="m-person" style="background:#388e3c">GW</span>
+                <span class="m-title">UX Mobile Porting Challenges in &#39;Prince of Persia: The Lost Crown&#39; Case Study</span>
+            </div>
+            <div class="m-meta">10:30-11:30 | 3002, West Hall</div>
+            <div class="m-meta" style="color:#888">Alexis Denance(Ubisoft Da Nang)</div>
+            <div class="m-reason">Mobile porting challenges, UX adaptations</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Modernizing the Rendering of &#39;Minecraft&#39;</span>
+                    <div class="m-alt-detail">10:30-11:30 | 2006, West Hall<br>Cross-platform rendering optimizations, technical depth</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>How AI is Reshaping Game Creation (Presented by Google Cloud)</span>
+                    <div class="m-alt-detail">10:10-11:10 | 2020, West Hall<br>AI in game dev, some pipeline relevance</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Tools Roundtable Day 1: Engineering</span>
+                    <div class="m-alt-detail">10:30-11:30 | 314, South Hall<br>Engineering tools discussion, some mobile relevance</div>
+                </div></div>
+        </div><div class="m-card" data-person="GW" style="background:#e8f5e9;border-left:4px solid #388e3c">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">10</span>
+                <span class="m-person" style="background:#388e3c">GW</span>
+                <span class="m-title">Tuning Your Unreal Engine 5 Game for Mobile Deployment (Presented by Epic Games)</span>
+            </div>
+            <div class="m-meta">11:30-12:30 | 2011, West Hall</div>
+            <div class="m-meta" style="color:#888">Paul Georges(Epic Games)</div>
+            <div class="m-reason">Directly addresses UE5 mobile optimization and scalability</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#2e7d32;min-width:20px;height:20px;line-height:20px;font-size:10px">8</span>
+                    <span>From Beautiful to Playable: Texture Compression Secrets Every Game Artist Should Know</span>
+                    <div class="m-alt-detail">11:50-12:20 | 2001, West Hall<br>Covers texture compression and optimization for mobile platforms</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Optimizing a Large, Time-Critical Problem: Occlusion Culling at &#39;Roblox&#39;</span>
+            </div>
+            <div class="m-meta">11:50-12:20 | 2006, West Hall</div>
+            <div class="m-meta" style="color:#888">Earl Hammon(Roblox)</div>
+            <div class="m-reason">Occlusion culling highly relevant to rendering optimization</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#2e7d32;min-width:20px;height:20px;line-height:20px;font-size:10px">8</span>
+                    <span>From Beautiful to Playable: Texture Compression Secrets Every Game Artist Should Know</span>
+                    <div class="m-alt-detail">11:50-12:20 | 2001, West Hall<br>Texture compression directly relevant to art pipelines</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Building the Dark Fantasy Materials of &#39;DOOM: The Dark Ages&#39; (Presented by Adobe)</span>
+                    <div class="m-alt-detail">11:30-12:30 | 3001, West Hall<br>Material creation pipeline insights</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Generative Recommender Post-Trained by Reinforcement Learning in Video Games</span>
+                    <div class="m-alt-detail">11:50-12:20 | 3004, West Hall<br>AI recommender system, some relevance to AI pipelines</div>
+                </div></div>
+        </div><div class="m-card" data-person="LYF" style="background:#fff3e0;border-left:4px solid #f57c00">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">8</span>
+                <span class="m-person" style="background:#f57c00">LYF</span>
+                <span class="m-title">Metaperf: Industrializing Performance Optimization for &#39;Delta Force&#39; (Presented by Tencent Games)</span>
+            </div>
+            <div class="m-meta">12:00-12:30 | 2024, West Hall</div>
+            <div class="m-meta" style="color:#888">Mingtong Chen(Team Jade / Tencent Games), Qingyu Tan(Team Jade / Tencent Games)</div>
+            <div class="m-reason">Covers cross-platform performance optimization with AI-driven profiling</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Building the Dark Fantasy Materials of &#39;DOOM: The Dark Ages&#39; (Presented by Adobe)</span>
+                    <div class="m-alt-detail">11:30-12:30 | 3001, West Hall<br>Material creation pipeline, relevant to rendering techniques</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>From Beautiful to Playable: Texture Compression Secrets Every Game Artist Should Know</span>
+                    <div class="m-alt-detail">11:50-12:20 | 2001, West Hall<br>Texture compression, relevant but not core graphics programming</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#2e7d32">9</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">The Future of Playable Worlds with Google DeepMind (Presented by Google Cloud)</span>
+            </div>
+            <div class="m-meta">12:45-13:45 | 2020, West Hall</div>
+            <div class="m-meta" style="color:#888">Ivan Ramirez(Google Cloud), Targoon Siripanichpong(Google Cloud), Jamie Pourturk(Google Cloud), Alexandre Moufarek(Google DeepMind), Piermaria Mendolicchio(Google DeepMind)</div>
+            <div class="m-reason">AI integration in game engines, highly relevant</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Four Artists Use Substance 3D to Texture &#39;Clair Obscur: Expedition 33&#39; (Presented by Adobe)</span>
+                    <div class="m-alt-detail">12:45-13:45 | 3001, West Hall<br>Texturing workflows, moderately relevant to tech art</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">7</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Global Pipelines Roundtable</span>
+            </div>
+            <div class="m-meta">13:50-14:50 | 314, South Hall</div>
+            <div class="m-meta" style="color:#888">David Vega(The Digital Production Pipeline Association), Fran Zandonella Benjamin(The Digital Production Pipeline Association)</div>
+            <div class="m-reason">Discusses pipeline trends and MLOps integration, relevant to AI and pipelines</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Reinforcement Learning in &#39;FC26&#39;: Shipping Human-Like Goalkeepers with a Designer-First Approach</span>
+                    <div class="m-alt-detail">13:50-14:50 | 2006, West Hall<br>Covers AI pipeline integration, relevant to tech art workflows</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Art Production Pipeline in 2026 and Beyond Roundtable (Presented by the IGDA)</span>
+                    <div class="m-alt-detail">13:50-14:50 | 301, South Hall<br>Discusses AI impact on art pipelines, relevant but high-level</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Using Telemetry (the Right Way) is a Game-Changer for Game Tools</span>
+                    <div class="m-alt-detail">13:50-14:50 | 3005, West Hall<br>Telemetry for tools, moderately relevant to tech art pipelines</div>
+                </div></div>
+        </div><div class="m-card" data-person="GW" style="background:#e8f5e9;border-left:4px solid #388e3c">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">7</span>
+                <span class="m-person" style="background:#388e3c">GW</span>
+                <span class="m-title">Trust, Attest, Server-Authoritative: Modern iOS Anti-Cheat for Multiplayer (Presented by GameSafe)</span>
+            </div>
+            <div class="m-meta">14:00-14:30 | 2009, West Hall</div>
+            <div class="m-meta" style="color:#888">Yue Wang(Tencent Games)</div>
+            <div class="m-reason">iOS-specific anti-cheat, relevant to mobile performance</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>&#39;Clair Obscur: Expedition 33&#39;: Delivering a Wide Scope of Features &amp; Content When You Only Have Four Programmers</span>
+                    <div class="m-alt-detail">13:50-14:50 | 3004, West Hall<br>Covers Unreal Engine optimization, but not mobile-specific</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>From Code to Game: Empowering Developers with JetBrains Rider and TeamCity (Presented by JetBrains)</span>
+                    <div class="m-alt-detail">14:00-14:30 | 2011, West Hall<br>Covers mobile debugging, but focuses on IDE tools</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">5</span>
+                    <span>Beyond the Build: Turning Your Studio into a Supercomputer (Presented by Incredibuild)</span>
+                    <div class="m-alt-detail">14:00-14:30 | 2000, West Hall<br>Distributed tasks, some relevance to mobile optimization</div>
+                </div></div>
+        </div><div class="m-card" data-person="LYF" style="background:#fff3e0;border-left:4px solid #f57c00">
+            <div class="m-header">
+                <span class="score-badge" style="background:#ef6c00">5</span>
+                <span class="m-person" style="background:#f57c00">LYF</span>
+                <span class="m-title">High-Fidelity on PC and Mobile: The &#39;Delta Force&#39; Character Production Pipeline (Presented by Tencent Games)</span>
+            </div>
+            <div class="m-meta">14:00-14:30 | 2024, West Hall</div>
+            <div class="m-meta" style="color:#888">Rui Mu(Team Jade / Tencent Games)</div>
+            <div class="m-reason">Character pipeline, some PC relevance</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>&#39;Clair Obscur: Expedition 33&#39;: Delivering a Wide Scope of Features &amp; Content When You Only Have Four Programmers</span>
+                    <div class="m-alt-detail">13:50-14:50 | 3004, West Hall<br>Unreal Engine usage, but lacks graphics programming focus</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>How to Win a VES Award</span>
+                    <div class="m-alt-detail">13:50-14:50 | 2001, West Hall<br>VFX awards tangentially related to graphics</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">4</span>
+                    <span>Beyond the Build: Turning Your Studio into a Supercomputer (Presented by Incredibuild)</span>
+                    <div class="m-alt-detail">14:00-14:30 | 2000, West Hall<br>Distributed computing, not graphics-specific</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">7</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Reusable Material Systems: Vinyl Flooring for Scalable Environments (Presented by Adobe)</span>
+            </div>
+            <div class="m-meta">14:50-15:20 | 3001, West Hall</div>
+            <div class="m-meta" style="color:#888">Vincent Dérozier(Independent)</div>
+            <div class="m-reason">Material creation, relevant to tech art workflows</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#2e7d32;min-width:20px;height:20px;line-height:20px;font-size:10px">9</span>
+                    <span>AI Models for 2D Generation</span>
+                    <div class="m-alt-detail">15:10-16:10 | 3004, West Hall<br>AI workflows, directly addresses pipeline integration</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Game AI Roundtable Day 1</span>
+                    <div class="m-alt-detail">15:10-16:10 | 308, South Hall<br>AI roundtable relevant to AI impact on pipelines</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Constructing Minietopia from a Micro Perspective: Concept Design and Implementation of &#39;Animula Nook&#39; (Presented by Tencent Games)</span>
+                    <div class="m-alt-detail">14:50-15:20 | 2024, West Hall<br>Stylized rendering, some platform-specific insights</div>
+                </div></div>
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">6</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Through the Looking Glass: The Art of &#39;South of Midnight&#39; (Presented by Adobe)</span>
+            </div>
+            <div class="m-meta">15:40-16:40 | 3001, West Hall</div>
+            <div class="m-meta" style="color:#888">Chad Emond(Compulsion Games), Paulette Richardson(Compulsion Games)</div>
+            <div class="m-reason">Art pipelines relevant but lacks technical depth</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#2e7d32;min-width:20px;height:20px;line-height:20px;font-size:10px">9</span>
+                    <span>AI Models for 2D Generation</span>
+                    <div class="m-alt-detail">15:10-16:10 | 3004, West Hall<br>AI workflows, directly addresses pipeline integration</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">7</span>
+                    <span>Game AI Roundtable Day 1</span>
+                    <div class="m-alt-detail">15:10-16:10 | 308, South Hall<br>AI roundtable relevant to AI impact on pipelines</div>
+                </div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#f9a825;min-width:20px;height:20px;line-height:20px;font-size:10px">6</span>
+                    <span>Controlled Chaos: 12 Principles of Design for VFX</span>
+                    <div class="m-alt-detail">15:10-16:10 | 2001, West Hall<br>VFX design principles relevant to visual style R&amp;D</div>
+                </div></div>
+        </div><div class="m-card" data-person="GW" style="background:#e8f5e9;border-left:4px solid #388e3c">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">6</span>
+                <span class="m-person" style="background:#388e3c">GW</span>
+                <span class="m-title">Automated Testing Roundtable Day 1</span>
+            </div>
+            <div class="m-meta">16:30-17:30 | 308, South Hall</div>
+            <div class="m-meta" style="color:#888">Andrew Fray(Automated AF)</div>
+            <div class="m-reason">Automated testing relevant to cross-platform dev</div>
+            
+        </div><div class="m-card" data-person="LD" style="background:#e3f2fd;border-left:4px solid #1976d2">
+            <div class="m-header">
+                <span class="score-badge" style="background:#f9a825">6</span>
+                <span class="m-person" style="background:#1976d2">LD</span>
+                <span class="m-title">Aged by Adventure: Crafting the Time-Worn World of &#39;Indiana Jones and the Great Circle&#39; (Presented by Adobe)</span>
+            </div>
+            <div class="m-meta">17:00-18:00 | 3001, West Hall</div>
+            <div class="m-meta" style="color:#888">Vytautas Katarzis(MachineGames), Antonio Vaz Figueiredo(MachineGames), Michael Tran(MachineGames)</div>
+            <div class="m-reason">Material aging techniques, relevant to tech art</div>
+            <div class="m-alts"><div style="font-size:11px;color:#999;font-weight:600;margin-bottom:4px">Alternatives:</div><div class="m-alt" onclick="this.classList.toggle('expanded')">
+                    <span class="score-badge" style="background:#ef6c00;min-width:20px;height:20px;line-height:20px;font-size:10px">5</span>
+                    <span>Cutscene Pipeline in &#39;Love and Deepspace&#39; (Presented by Tencent Games)</span>
+                    <div class="m-alt-detail">17:30-18:00 | 2024, West Hall<br>Cutscene pipeline, moderately relevant to tech art</div>
+                </div></div>
+        </div>
+    </div>
+
+    <div class="unattended-section">
+        <h2>Unattended High-Score Sessions</h2>
+        <div class="unattended-item">
+            <span class="score-badge" style="background:#2e7d32">9</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">AI Models for 2D Generation</span>
+            <span class="unattended-meta">15:10-16:10 | 3004, West Hall</span>
+            <div class="unattended-reason">AI workflows, directly addresses pipeline integration</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#2e7d32">8</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">How AI is Reshaping Game Creation (Presented by Google Cloud)</span>
+            <span class="unattended-meta">10:10-11:10 | 2020, West Hall</span>
+            <div class="unattended-reason">AI impact on game dev pipelines highly relevant</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#2e7d32">8</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">From Beautiful to Playable: Texture Compression Secrets Every Game Artist Should Know</span>
+            <span class="unattended-meta">11:50-12:20 | 2001, West Hall</span>
+            <div class="unattended-reason">Texture compression directly relevant to art pipelines</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">7</span>
+            <span class="unattended-person" style="color:#388e3c">[GW]</span>
+            <span class="unattended-title">Modernizing the Rendering of &#39;Minecraft&#39;</span>
+            <span class="unattended-meta">10:30-11:30 | 2006, West Hall</span>
+            <div class="unattended-reason">Cross-platform rendering optimizations, technical depth</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">7</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Tools Roundtable Day 1: Engineering</span>
+            <span class="unattended-meta">10:30-11:30 | 314, South Hall</span>
+            <div class="unattended-reason">Tools engineering, relevant to tech art pipelines</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">7</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Building the Dark Fantasy Materials of &#39;DOOM: The Dark Ages&#39; (Presented by Adobe)</span>
+            <span class="unattended-meta">11:30-12:30 | 3001, West Hall</span>
+            <div class="unattended-reason">Material creation pipeline insights</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">7</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Reinforcement Learning in &#39;FC26&#39;: Shipping Human-Like Goalkeepers with a Designer-First Approach</span>
+            <span class="unattended-meta">13:50-14:50 | 2006, West Hall</span>
+            <div class="unattended-reason">Covers AI pipeline integration, relevant to tech art workflows</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">7</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Game AI Roundtable Day 1</span>
+            <span class="unattended-meta">15:10-16:10 | 308, South Hall</span>
+            <div class="unattended-reason">AI roundtable relevant to AI impact on pipelines</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">6</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Adobe Substance 3D State of the Ecosystem (Presented by Adobe)</span>
+            <span class="unattended-meta">10:10-11:10 | 3001, West Hall</span>
+            <div class="unattended-reason">Substance 3D ecosystem updates relevant to material systems</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">6</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">VFX Roundtable Day 1</span>
+            <span class="unattended-meta">10:30-11:30 | 312, South Hall</span>
+            <div class="unattended-reason">VFX techniques, relevant to tech art</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">6</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">From the Ground Up: Rethinking Quality in Games</span>
+            <span class="unattended-meta">10:50-11:50 | 2014, West Hall</span>
+            <div class="unattended-reason">Automation and AI in QA workflows</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">6</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Generative Recommender Post-Trained by Reinforcement Learning in Video Games</span>
+            <span class="unattended-meta">11:50-12:20 | 3004, West Hall</span>
+            <div class="unattended-reason">AI recommender system, some relevance to AI pipelines</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">6</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Four Artists Use Substance 3D to Texture &#39;Clair Obscur: Expedition 33&#39; (Presented by Adobe)</span>
+            <span class="unattended-meta">12:45-13:45 | 3001, West Hall</span>
+            <div class="unattended-reason">Texturing workflows, moderately relevant to tech art</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">6</span>
+            <span class="unattended-person" style="color:#1976d2">[LD]</span>
+            <span class="unattended-title">Art Production Pipeline in 2026 and Beyond Roundtable (Presented by the IGDA)</span>
+            <span class="unattended-meta">13:50-14:50 | 301, South Hall</span>
+            <div class="unattended-reason">Discusses AI impact on art pipelines, relevant but high-level</div>
+        </div><div class="unattended-item">
+            <span class="score-badge" style="background:#f9a825">6</span>
+            <span class="unattended-person" style="color:#388e3c">[GW]</span>
+            <span class="unattended-title">&#39;Clair Obscur: Expedition 33&#39;: Delivering a Wide Scope of Features &amp; Content When You Only Have Four Programmers</span>
+            <span class="unattended-meta">13:50-14:50 | 3004, West Hall</span>
+            <div class="unattended-reason">Covers Unreal Engine optimization, but not mobile-specific</div>
+        </div>
+    </div>
+</div>
+
+<div class="view-toggle">
+    <button onclick="toggleView()">Switch View</button>
+</div>
+
+<script>
+function filterPerson(person, btn) {
+    document.querySelectorAll('.person-filter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.m-card').forEach(card => {
+        card.style.display = (person === 'all' || card.dataset.person === person) ? '' : 'none';
+    });
+}
+function toggleView() {
+    const d = document.querySelector('.desktop-view');
+    const m = document.querySelector('.mobile-view');
+    if (d.style.display === 'none') {
+        d.style.display = ''; m.style.display = 'none';
+    } else {
+        d.style.display = 'none'; m.style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>
