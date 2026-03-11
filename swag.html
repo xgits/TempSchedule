@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>GDC 2026 周三 Swag 行动计划</title>
+  <meta name="description" content="GDC 2026 周三 swag 抢限量行动计划与复盘 checklist" />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121932;
+      --panel-2:#182142;
+      --text:#eef2ff;
+      --muted:#aab6da;
+      --line:#2a376b;
+      --accent:#7cc4ff;
+      --accent-2:#9bffb0;
+      --warn:#ffd479;
+      --danger:#ff9f9f;
+      --shadow:0 10px 30px rgba(0,0,0,.28);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#0a0f1d 0%,#0f1630 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+    a{color:var(--accent)}
+    .wrap{max-width:980px;margin:0 auto;padding:20px 16px 56px}
+    .hero{
+      background:linear-gradient(135deg,rgba(124,196,255,.16),rgba(155,255,176,.10));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
+      border-radius:24px;
+      padding:22px 18px;
+      position:sticky;
+      top:0;
+      backdrop-filter:blur(10px);
+      z-index:20;
+      margin-bottom:16px;
+    }
+    .hero h1{margin:0 0 8px;font-size:26px;line-height:1.2}
+    .hero p{margin:6px 0;color:var(--muted);line-height:1.6}
+    .hero .pillbar{
+      display:flex;flex-wrap:wrap;gap:8px;margin-top:12px
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:13px;
+    }
+
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+    .card{
+      background:rgba(18,25,50,.92);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:16px;
+      margin-bottom:16px;
+    }
+    .card h2{
+      margin:0 0 12px;
+      font-size:20px;
+      line-height:1.3;
+    }
+    .card h3{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.35;
+    }
+    .muted{color:var(--muted)}
+    .section-intro{margin:-4px 0 12px;color:var(--muted);line-height:1.6}
+    .timeline{display:grid;gap:12px}
+    .slot{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
+      border-radius:16px;
+      padding:14px;
+    }
+    .slot-head{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .time{
+      font-weight:700;font-size:15px;color:var(--accent)
+    }
+    .goal{
+      font-size:12px;color:#0b1020;
+      background:var(--accent-2);
+      border-radius:999px;
+      padding:5px 10px;
+      font-weight:700;
+    }
+    .slot p{margin:8px 0;color:var(--muted);line-height:1.6}
+    .steps, .plain-list{
+      margin:8px 0 0;
+      padding-left:18px;
+      line-height:1.7;
+    }
+    .steps li, .plain-list li{margin:6px 0}
+    .priority{
+      display:grid;gap:10px;
+    }
+    .prio{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:rgba(255,255,255,.02);
+    }
+    .prio .tag{
+      display:inline-block;
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+    .tag.a{background:rgba(255,212,121,.18);color:var(--warn);border:1px solid rgba(255,212,121,.25)}
+    .tag.b{background:rgba(124,196,255,.14);color:var(--accent);border:1px solid rgba(124,196,255,.25)}
+    .tag.c{background:rgba(155,255,176,.12);color:var(--accent-2);border:1px solid rgba(155,255,176,.25)}
+
+    .route{
+      background:linear-gradient(180deg,rgba(124,196,255,.08),rgba(255,255,255,.02));
+      border:1px solid rgba(124,196,255,.18);
+      border-radius:16px;
+      padding:14px;
+      line-height:1.8;
+    }
+    .kbd{
+      display:inline-block;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      border-bottom-width:3px;
+      border-radius:10px;
+      padding:3px 8px;
+      font-size:12px;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .dont{
+      border-left:4px solid var(--danger);
+      padding:8px 0 8px 12px;
+    }
+
+    .check-toolbar{
+      display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px
+    }
+    button{
+      appearance:none;border:none;cursor:pointer;
+      border-radius:12px;padding:10px 14px;
+      font-weight:700;font-size:14px;
+      background:var(--accent);color:#08111f;
+      box-shadow:var(--shadow);
+    }
+    button.secondary{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:none;
+    }
+    .progress{
+      display:flex;align-items:center;gap:10px;
+      margin:6px 0 12px;
+    }
+    .bar{
+      flex:1;height:12px;border-radius:999px;
+      background:rgba(255,255,255,.08);
+      overflow:hidden;border:1px solid rgba(255,255,255,.08);
+    }
+    .bar > span{
+      display:block;height:100%;width:0%;
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      transition:width .25s ease;
+    }
+
+    .check-group{margin:14px 0 18px}
+    .check-group h3{margin-bottom:10px}
+    .checklist{
+      display:grid;gap:8px
+    }
+    .item{
+      display:flex;gap:10px;align-items:flex-start;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      border-radius:14px;padding:12px;
+    }
+    .item input[type="checkbox"]{
+      width:20px;height:20px;margin-top:2px;accent-color:#8ed1ff;cursor:pointer;
+      flex:0 0 auto;
+    }
+    .item label{
+      line-height:1.55;cursor:pointer;display:block;
+      color:var(--text);
+    }
+    .item small{display:block;color:var(--muted);margin-top:4px}
+
+    .footer-note{
+      margin-top:8px;color:var(--muted);line-height:1.7;font-size:14px
+    }
+    .quote{
+      font-size:18px;font-weight:800;line-height:1.6;
+      text-align:center;padding:16px;
+      border:1px dashed rgba(255,255,255,.14);
+      border-radius:16px;background:rgba(255,255,255,.02);
+    }
+
+    .toplink{
+      position:fixed;right:16px;bottom:16px;z-index:30;
+      text-decoration:none;background:rgba(18,25,50,.95);
+      border:1px solid rgba(255,255,255,.1);
+      color:var(--text);padding:10px 12px;border-radius:999px;
+      box-shadow:var(--shadow)
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="top">
+    <section class="hero">
+      <h1>GDC 2026 周三 Swag 行动计划</h1>
+      <p>今天只做一件事：优先抢最容易断货、最容易爆火的 swag。周四周五再留给普通 booth、活动、party 和社群。</p>
+      <div class="pillbar">
+        <span class="pill">黄金时间：10:00–11:30</span>
+        <span class="pill">上午只抢限量</span>
+        <span class="pill">下午补漏 + 轻松扫货</span>
+        <span class="pill">优先级：Hyper3D → Xbox → NVIDIA → Dev Stream Labs → SideFX</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <main>
+        <section class="card">
+          <h2>你今天只要记住这 3 条</h2>
+          <ol class="plain-list">
+            <li><strong>10:00–11:30 是黄金时间。</strong> 最容易断货的内容尽量压在这个时间段完成。</li>
+            <li><strong>上午只做“抢限量”。</strong> 不要在一个 booth 聊太久，也不要为了普通贴纸排长队。</li>
+            <li><strong>下午只做“补漏 + 轻松扫货”。</strong> Commons、社群桌、普通 booth 和顺路活动都留到后面。</li>
+          </ol>
+        </section>
+
+        <section class="card">
+          <h2>周三线性行动计划</h2>
+          <p class="section-intro">按照这个节奏走，最省脑，也最不容易错过爆款。</p>
+
+          <div class="timeline">
+            <div class="slot">
+              <div class="slot-head">
+                <div class="time">09:00–09:45</div>
+                <div class="goal">进场准备</div>
+              </div>
+              <p>确保 badge、充电宝、背包空间、手机邮箱和相机都准备好。尽量提前到 South Hall / 入场动线附近，为 10 点开抢做准备。</p>
+              <ul class="steps">
+                <li>检查 badge、钱包、充电宝</li>
+                <li>背包留出 swag 空间</li>
+                <li>手机打开邮箱、相机、备忘录</li>
+                <li>准备好一句话：<span class="kbd">Any swag today?</span></li>
+              </ul>
+            </div>
+
+            <div class="slot">
+              <div class="slot-head">
+                <div class="time">10:00–11:30</div>
+                <div class="goal">先抢最容易没的 5 个点</div>
+              </div>
+              <p>这段时间不要分心，先锁定最可能断货、最容易排爆的目标。</p>
+              <ol class="steps">
+                <li><strong>Hyper3D</strong>：第一优先。先问规则，能登记/提交/排队就立刻做，先锁资格。</li>
+                <li><strong>Xbox / Microsoft</strong>：第二优先。重点盯 pin / 胸针类，通常最容易早段发完。</li>
+                <li><strong>NVIDIA</strong>：第三优先。核心是先做 giveaway / 抽奖登记，不要先花时间深聊。</li>
+                <li><strong>Dev Stream Labs</strong>：第四优先。有游戏化/抓娃娃/奖品机制，队伍可能突然变长。</li>
+                <li><strong>SideFX</strong>：第五优先。既然官方暗示要早点去，就尽量今天上午完成。</li>
+              </ol>
+            </div>
+
+            <div class="slot">
+              <div class="slot-head">
+                <div class="time">11:30–12:30</div>
+                <div class="goal">吃点东西 + 低压力补货</div>
+              </div>
+              <p>不要继续硬冲大热门。这个时段适合轻松扫一些稳定能拿的资料和小周边。</p>
+              <ul class="steps">
+                <li>GDC Commons</li>
+                <li>IGDA / 社群组织桌</li>
+                <li>Roundtable / meetup 外围桌面资料</li>
+                <li>小贴纸、小卡片、小徽章</li>
+              </ul>
+            </div>
+
+            <div class="slot">
+              <div class="slot-head">
+                <div class="time">12:30–14:30</div>
+                <div class="goal">扫中优先级 booth</div>
+              </div>
+              <p>走得轻松一点，优先看桌上有没有直接可拿的，没有再问一句是否有 swag。</p>
+              <ul class="steps">
+                <li>Reddit</li>
+                <li>Meta</li>
+                <li>Red Hat</li>
+                <li>Sentry</li>
+                <li>Discord</li>
+                <li>Xsolla</li>
+                <li>Tencent（先问有没有 swag，再决定停留多久）</li>
+              </ul>
+            </div>
+
+            <div class="slot">
+              <div class="slot-head">
+                <div class="time">14:30–16:00</div>
+                <div class="goal">回刷上午错过的爆款点</div>
+              </div>
+              <p>这是最划算的二轮检查时间。不是为了重跑全部，而是捡回上午没成的关键目标。</p>
+              <ul class="steps">
+                <li>回看 Hyper3D</li>
+                <li>回看 Xbox</li>
+                <li>回看 NVIDIA</li>
+                <li>回看 Dev Stream Labs</li>
+                <li>回看 SideFX</li>
+              </ul>
+            </div>
+
+            <div class="slot">
+              <div class="slot-head">
+                <div class="time">16:00–18:00</div>
+                <div class="goal">轻松收尾</div>
+              </div>
+              <p>别再高强度冲了，改成查缺补漏、回刷喜欢的 booth、顺路看 Commons 或户外点。</p>
+              <ul class="steps">
+                <li>补拿漏掉的普通 swag</li>
+                <li>社群区再扫一遍</li>
+                <li>记下周四值得回刷的 booth</li>
+                <li>给背包做一次整理</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>分层优先级</h2>
+          <div class="priority">
+            <div class="prio">
+              <div class="tag a">A 档｜今天必须优先做</div>
+              <div>Hyper3D / Xbox pin / NVIDIA giveaway / Dev Stream Labs / SideFX</div>
+            </div>
+            <div class="prio">
+              <div class="tag b">B 档｜今天顺路做</div>
+              <div>Reddit / Meta / Red Hat / Sentry / Discord / Xsolla / Tencent</div>
+            </div>
+            <div class="prio">
+              <div class="tag c">C 档｜今天当补给站</div>
+              <div>GDC Commons / IGDA / 社群组织桌 / meetup 外场桌 / Indie 区小团队</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>超短版路线</h2>
+          <div class="route">
+            <div><strong>上午：</strong>Hyper3D → Xbox → NVIDIA → Dev Stream Labs → SideFX</div>
+            <div><strong>中午：</strong>吃饭 / 休息 → Commons 扫一圈</div>
+            <div><strong>下午前半：</strong>Reddit → Meta → Red Hat → Sentry → Discord</div>
+            <div><strong>下午后半：</strong>回刷上午没拿到的重点 → Commons / 社群区补漏 → 收工</div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>今天不要做的事</h2>
+          <div class="dont">
+            <ul class="plain-list">
+              <li>不要在 NVIDIA / Xbox 这种大 booth 停太久聊天</li>
+              <li>不要为一个普通贴纸排很长队</li>
+              <li>不要上午把时间花在很多“也许有 swag”的 booth 上</li>
+              <li>不要在第一小时去做不确定收益的长 demo</li>
+              <li>不要想着“我下午再来一定还在”</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="quote">
+            上午抢限量：Hyper3D → Xbox → NVIDIA → Dev Stream Labs → SideFX<br />
+            中午扫 Commons<br />
+            下午补 Reddit / Meta / Red Hat / Sentry / Discord，再回刷爆款
+          </div>
+        </section>
+      </main>
+
+      <aside>
+        <section class="card">
+          <h2>周三收获 Checklist</h2>
+
+          <div class="check-toolbar">
+            <button id="saveBtn">保存进度</button>
+            <button class="secondary" id="resetBtn">清空勾选</button>
+          </div>
+
+          <div class="progress">
+            <div class="bar"><span id="barFill"></span></div>
+            <div id="progressText" class="muted">0 / 0</div>
+          </div>
+
+          <div class="check-group">
+            <h3>核心战利品</h3>
+            <div class="checklist">
+              <div class="item"><input type="checkbox" id="c1"><label for="c1">Hyper3D 已完成登记 / 排队 / 提交</label></div>
+              <div class="item"><input type="checkbox" id="c2"><label for="c2">Xbox pin 已拿到或已确认领取方式</label></div>
+              <div class="item"><input type="checkbox" id="c3"><label for="c3">NVIDIA giveaway 已登记</label></div>
+              <div class="item"><input type="checkbox" id="c4"><label for="c4">Dev Stream Labs 已玩到 / 已拿到奖品或资格</label></div>
+              <div class="item"><input type="checkbox" id="c5"><label for="c5">SideFX 已去过并确认今天是否还有货</label></div>
+            </div>
+          </div>
+
+          <div class="check-group">
+            <h3>中优先级 booth</h3>
+            <div class="checklist">
+              <div class="item"><input type="checkbox" id="c6"><label for="c6">Reddit 去过</label></div>
+              <div class="item"><input type="checkbox" id="c7"><label for="c7">Meta 去过</label></div>
+              <div class="item"><input type="checkbox" id="c8"><label for="c8">Red Hat 去过</label></div>
+              <div class="item"><input type="checkbox" id="c9"><label for="c9">Sentry 去过</label></div>
+              <div class="item"><input type="checkbox" id="c10"><label for="c10">Discord 去过</label></div>
+              <div class="item"><input type="checkbox" id="c11"><label for="c11">Xsolla 去过</label></div>
+              <div class="item"><input type="checkbox" id="c12"><label for="c12">Tencent 去过并问过是否有 swag</label></div>
+            </div>
+          </div>
+
+          <div class="check-group">
+            <h3>社群 / 稳定补给</h3>
+            <div class="checklist">
+              <div class="item"><input type="checkbox" id="c13"><label for="c13">GDC Commons 至少扫过 1 次</label></div>
+              <div class="item"><input type="checkbox" id="c14"><label for="c14">社群桌 / meetup 桌至少看过 3 个</label></div>
+              <div class="item"><input type="checkbox" id="c15"><label for="c15">拿到至少一批贴纸 / 小卡 / 胸牌 / 社群资料</label></div>
+              <div class="item"><input type="checkbox" id="c16"><label for="c16">Indie 区至少逛过一小圈</label></div>
+            </div>
+          </div>
+
+          <div class="check-group">
+            <h3>情报收集</h3>
+            <div class="checklist">
+              <div class="item"><input type="checkbox" id="c17"><label for="c17">问过至少 3 个 booth：明天还会不会补货</label></div>
+              <div class="item"><input type="checkbox" id="c18"><label for="c18">记录了至少 3 个“周四可回刷”的点</label></div>
+              <div class="item"><input type="checkbox" id="c19"><label for="c19">拍下/记下了至少 2 个二维码或活动页面</label></div>
+              <div class="item"><input type="checkbox" id="c20"><label for="c20">确认了 1 个今晚或明天可参加的 meetup / party / talk</label></div>
+            </div>
+          </div>
+
+          <div class="check-group">
+            <h3>收尾复盘</h3>
+            <div class="checklist">
+              <div class="item"><input type="checkbox" id="c21"><label for="c21">今天最想要的 top 3 至少完成 2 个</label></div>
+              <div class="item"><input type="checkbox" id="c22"><label for="c22">没有把上午黄金时间浪费在长队普通 swag 上</label></div>
+              <div class="item"><input type="checkbox" id="c23"><label for="c23">包里已经有备用空间，不至于明天装不下</label></div>
+              <div class="item"><input type="checkbox" id="c24"><label for="c24">手机仍有电 / 充电宝可用</label></div>
+              <div class="item"><input type="checkbox" id="c25"><label for="c25">记下周四优先补漏名单</label></div>
+            </div>
+          </div>
+
+          <p class="footer-note">
+            勾选内容会自动保存在浏览器本地。你把这个页面挂到 GitHub Pages 后，用同一台设备打开，进度就会留着。
+          </p>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <a class="toplink" href="#top">回到顶部</a>
+
+  <script>
+    const STORAGE_KEY = "gdc2026_wed_plan_checklist_v1";
+    const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
+    const saveBtn = document.getElementById("saveBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const barFill = document.getElementById("barFill");
+    const progressText = document.getElementById("progressText");
+
+    function getState() {
+      return Object.fromEntries(checkboxes.map(cb => [cb.id, cb.checked]));
+    }
+
+    function applyState(state) {
+      checkboxes.forEach(cb => {
+        cb.checked = !!state[cb.id];
+      });
+      updateProgress();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
+      saveBtn.textContent = "已保存";
+      setTimeout(() => saveBtn.textContent = "保存进度", 900);
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        applyState(JSON.parse(raw));
+      } catch (e) {}
+    }
+
+    function updateProgress() {
+      const total = checkboxes.length;
+      const done = checkboxes.filter(cb => cb.checked).length;
+      const percent = total ? Math.round(done / total * 100) : 0;
+      barFill.style.width = percent + "%";
+      progressText.textContent = done + " / " + total;
+    }
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener("change", () => {
+        updateProgress();
+        saveState();
+      });
+    });
+
+    saveBtn.addEventListener("click", saveState);
+    resetBtn.addEventListener("click", () => {
+      checkboxes.forEach(cb => cb.checked = false);
+      updateProgress();
+      saveState();
+    });
+
+    loadState();
+    updateProgress();
+  </script>
+</body>
+</html>
